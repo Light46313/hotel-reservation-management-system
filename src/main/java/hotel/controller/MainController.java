@@ -2,8 +2,13 @@ package hotel.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
 
 public class MainController {
+
+    // Label used for testing event handling
+    @FXML
+    private Label eventStatusLabel;
 
     // This method will be connected to the Room Management button
     @FXML
@@ -33,6 +38,12 @@ public class MainController {
     @FXML
     private void exitApplication() {
         System.exit(0);
+    }
+
+    // Button event handling test
+    @FXML
+    private void handleTestEvent() {
+        eventStatusLabel.setText("Button Clicked!");
     }
 
     // Common method for showing information
