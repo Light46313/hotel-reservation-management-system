@@ -3,6 +3,9 @@ package hotel.controller;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
 public class MainController {
 
@@ -10,48 +13,128 @@ public class MainController {
     @FXML
     private Label eventStatusLabel;
 
-    // This method will be connected to the Room Management button
+
+    // =========================
+    // ROOM MANAGEMENT
+    // =========================
+
     @FXML
     private void openRoomManagement() {
-        showMessage("Room Management", "Room Management section will open here.");
+
+        try {
+
+            FXMLLoader loader = new FXMLLoader(
+                    MainController.class.getResource("/view/RoomView.fxml")
+            );
+
+            Scene scene = new Scene(loader.load());
+
+            Stage stage = new Stage();
+
+            stage.setTitle("Room Management");
+            stage.setScene(scene);
+
+            stage.setWidth(700);
+            stage.setHeight(500);
+
+            stage.show();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            showMessage(
+                    "Error",
+                    "Could not open Room Management."
+            );
+        }
     }
 
-    // This method will be connected to the Customer Management button
+
+    // =========================
+    // CUSTOMER MANAGEMENT
+    // =========================
+
     @FXML
     private void openCustomerManagement() {
-        showMessage("Customer Management", "Customer Management section will open here.");
+
+        showMessage(
+                "Customer Management",
+                "Customer Management section will open here."
+        );
     }
 
-    // This method will be connected to the Booking button
+
+    // =========================
+    // BOOKING
+    // =========================
+
     @FXML
     private void openBooking() {
-        showMessage("Booking", "Booking section will open here.");
+
+        showMessage(
+                "Booking",
+                "Booking section will open here."
+        );
     }
 
-    // This method will be connected to the Booking History button
+
+    // =========================
+    // BOOKING HISTORY
+    // =========================
+
     @FXML
     private void openBookingHistory() {
-        showMessage("Booking History", "Booking History section will open here.");
+
+        showMessage(
+                "Booking History",
+                "Booking History section will open here."
+        );
     }
 
-    // This method will be connected to the Exit button
+
+    // =========================
+    // EXIT
+    // =========================
+
     @FXML
     private void exitApplication() {
+
         System.exit(0);
     }
 
-    // Button event handling test
+
+    // =========================
+    // TEST EVENT
+    // =========================
+
     @FXML
     private void handleTestEvent() {
-        eventStatusLabel.setText("Button Clicked!");
+
+        eventStatusLabel.setText(
+                "Button Clicked!"
+        );
     }
 
-    // Common method for showing information
-    private void showMessage(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
+    // =========================
+    // COMMON MESSAGE
+    // =========================
+
+    private void showMessage(
+            String title,
+            String message
+    ) {
+
+        Alert alert =
+                new Alert(
+                        Alert.AlertType.INFORMATION
+                );
+
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
+
         alert.showAndWait();
     }
 }
