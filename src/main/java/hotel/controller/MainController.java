@@ -1,15 +1,18 @@
 package hotel.controller;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 public class MainController {
 
-    // Label used for testing event handling
+    // =========================
+    // EVENT STATUS LABEL
+    // =========================
+
     @FXML
     private Label eventStatusLabel;
 
@@ -24,7 +27,9 @@ public class MainController {
         try {
 
             FXMLLoader loader = new FXMLLoader(
-                    MainController.class.getResource("/view/RoomView.fxml")
+                    MainController.class.getResource(
+                            "/view/RoomView.fxml"
+                    )
             );
 
             Scene scene = new Scene(loader.load());
@@ -111,9 +116,12 @@ public class MainController {
     @FXML
     private void handleTestEvent() {
 
-        eventStatusLabel.setText(
-                "Button Clicked!"
-        );
+        if (eventStatusLabel != null) {
+
+            eventStatusLabel.setText(
+                    "Button Clicked!"
+            );
+        }
     }
 
 

@@ -10,13 +10,14 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 
 import java.util.Optional;
 
 public class RoomController {
 
     // =========================
-    // Table and Columns
+    // TABLE AND COLUMNS
     // =========================
 
     @FXML
@@ -36,7 +37,7 @@ public class RoomController {
 
 
     // =========================
-    // Room List
+    // ROOM LIST
     // =========================
 
     private ObservableList<Room> roomList =
@@ -44,25 +45,28 @@ public class RoomController {
 
 
     // =========================
-    // Initialize
+    // INITIALIZE
     // =========================
 
     @FXML
     public void initialize() {
 
-        // Connect columns with Room.java
+        // Connect Room Number column
         roomNumberColumn.setCellValueFactory(
                 new PropertyValueFactory<>("roomNumber")
         );
 
+        // Connect Room Type column
         roomTypeColumn.setCellValueFactory(
                 new PropertyValueFactory<>("roomType")
         );
 
+        // Connect Price column
         priceColumn.setCellValueFactory(
                 new PropertyValueFactory<>("price")
         );
 
+        // Connect Available column
         availableColumn.setCellValueFactory(
                 new PropertyValueFactory<>("available")
         );
@@ -73,9 +77,17 @@ public class RoomController {
 
 
         // Sample rooms for testing
-        roomList.add(new Room(101, "Single", 1500, true));
-        roomList.add(new Room(102, "Double", 2500, true));
-        roomList.add(new Room(103, "Suite", 4000, false));
+        roomList.add(
+                new Room(101, "Single", 1500, true)
+        );
+
+        roomList.add(
+                new Room(102, "Double", 2500, true)
+        );
+
+        roomList.add(
+                new Room(103, "Suite", 4000, false)
+        );
     }
 
 
@@ -91,8 +103,12 @@ public class RoomController {
                 new TextInputDialog();
 
         roomNumberDialog.setTitle("Add Room");
-        roomNumberDialog.setHeaderText("Enter Room Number");
-        roomNumberDialog.setContentText("Room Number:");
+        roomNumberDialog.setHeaderText(
+                "Enter Room Number"
+        );
+        roomNumberDialog.setContentText(
+                "Room Number:"
+        );
 
         Optional<String> roomNumberResult =
                 roomNumberDialog.showAndWait();
@@ -107,8 +123,12 @@ public class RoomController {
                 new TextInputDialog();
 
         roomTypeDialog.setTitle("Add Room");
-        roomTypeDialog.setHeaderText("Enter Room Type");
-        roomTypeDialog.setContentText("Room Type:");
+        roomTypeDialog.setHeaderText(
+                "Enter Room Type"
+        );
+        roomTypeDialog.setContentText(
+                "Room Type:"
+        );
 
         Optional<String> roomTypeResult =
                 roomTypeDialog.showAndWait();
@@ -123,8 +143,12 @@ public class RoomController {
                 new TextInputDialog();
 
         priceDialog.setTitle("Add Room");
-        priceDialog.setHeaderText("Enter Room Price");
-        priceDialog.setContentText("Price:");
+        priceDialog.setHeaderText(
+                "Enter Room Price"
+        );
+        priceDialog.setContentText(
+                "Price:"
+        );
 
         Optional<String> priceResult =
                 priceDialog.showAndWait();
@@ -137,18 +161,27 @@ public class RoomController {
         try {
 
             int roomNumber =
-                    Integer.parseInt(roomNumberResult.get());
+                    Integer.parseInt(
+                            roomNumberResult.get()
+                    );
 
             String roomType =
                     roomTypeResult.get();
 
             double price =
-                    Double.parseDouble(priceResult.get());
+                    Double.parseDouble(
+                            priceResult.get()
+                    );
 
 
             // New room is available by default
             Room room =
-                    new Room(roomNumber, roomType, price, true);
+                    new Room(
+                            roomNumber,
+                            roomType,
+                            price,
+                            true
+                    );
 
             roomList.add(room);
 
@@ -176,7 +209,9 @@ public class RoomController {
     private void updateRoom() {
 
         Room selectedRoom =
-                roomTable.getSelectionModel().getSelectedItem();
+                roomTable
+                        .getSelectionModel()
+                        .getSelectedItem();
 
 
         if (selectedRoom == null) {
@@ -196,10 +231,14 @@ public class RoomController {
                         selectedRoom.getRoomType()
                 );
 
-        roomTypeDialog.setTitle("Update Room");
+        roomTypeDialog.setTitle(
+                "Update Room"
+        );
+
         roomTypeDialog.setHeaderText(
                 "Update Room Type"
         );
+
         roomTypeDialog.setContentText(
                 "Room Type:"
         );
@@ -221,10 +260,14 @@ public class RoomController {
                         )
                 );
 
-        priceDialog.setTitle("Update Room");
+        priceDialog.setTitle(
+                "Update Room"
+        );
+
         priceDialog.setHeaderText(
                 "Update Room Price"
         );
+
         priceDialog.setContentText(
                 "Price:"
         );
@@ -258,6 +301,7 @@ public class RoomController {
             );
 
 
+            // Refresh TableView
             roomTable.refresh();
 
 
@@ -285,7 +329,9 @@ public class RoomController {
     private void deleteRoom() {
 
         Room selectedRoom =
-                roomTable.getSelectionModel().getSelectedItem();
+                roomTable
+                        .getSelectionModel()
+                        .getSelectedItem();
 
 
         if (selectedRoom == null) {
@@ -304,11 +350,14 @@ public class RoomController {
                         Alert.AlertType.CONFIRMATION
                 );
 
-        confirmation.setTitle("Delete Room");
+        confirmation.setTitle(
+                "Delete Room"
+        );
 
         confirmation.setHeaderText(
-                "Delete Room " +
-                        selectedRoom.getRoomNumber() + "?"
+                "Delete Room "
+                        + selectedRoom.getRoomNumber()
+                        + "?"
         );
 
         confirmation.setContentText(
@@ -323,7 +372,9 @@ public class RoomController {
         if (result.isPresent()
                 && result.get() == ButtonType.OK) {
 
-            roomList.remove(selectedRoom);
+            roomList.remove(
+                    selectedRoom
+            );
 
             showMessage(
                     "Success",
@@ -334,7 +385,25 @@ public class RoomController {
 
 
     // =========================
-    // Show Message
+    // BACK TO MAIN
+    // =========================
+
+    @FXML
+    private void backToMain() {
+
+        // Get the current Room Management window
+        Stage stage =
+                (Stage) roomTable
+                        .getScene()
+                        .getWindow();
+
+        // Close Room Management window
+        stage.close();
+    }
+
+
+    // =========================
+    // SHOW MESSAGE
     // =========================
 
     private void showMessage(
