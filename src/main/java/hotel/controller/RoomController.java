@@ -6,6 +6,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
@@ -44,6 +45,14 @@ public class RoomController {
 
     @FXML
     private TextField searchRoomField;
+
+
+    // =========================
+    // PART 9 - FACILITY LIST
+    // =========================
+
+    @FXML
+    private ListView<String> facilityListView;
 
 
     // =========================
@@ -144,6 +153,44 @@ public class RoomController {
         searchRoomField.setOnAction(event -> {
             searchRoom();
         });
+
+
+        // =========================
+        // PART 9 - LISTVIEW ITEMS
+        // =========================
+
+        ObservableList<String> facilities =
+                FXCollections.observableArrayList(
+                        "Swimming Pool",
+                        "Restaurant",
+                        "Gym",
+                        "Parking",
+                        "Wi-Fi"
+                );
+
+        // Put the facilities into the ListView
+        facilityListView.setItems(facilities);
+
+
+        // =========================
+        // PART 9 - LISTVIEW SELECTION
+        // =========================
+
+        facilityListView.getSelectionModel()
+                .selectedItemProperty()
+                .addListener(
+                        (observable, oldValue, newValue) -> {
+
+                            if (newValue != null) {
+
+                                showMessage(
+                                        "Selected Facility",
+                                        "Selected Facility: "
+                                                + newValue
+                                );
+                            }
+                        }
+                );
     }
 
 
@@ -337,6 +384,7 @@ public class RoomController {
                     "Success",
                     "Room added successfully!"
             );
+
 
         } catch (NumberFormatException e) {
 
