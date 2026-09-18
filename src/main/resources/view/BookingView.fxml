@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" spacing="15.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hotel.controller.BookingController">
+<VBox alignment="TOP_CENTER" maxHeight="700.0" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="800.0" spacing="15.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hotel.controller.BookingController">
    <children>
       <Label text="BOOKING MANAGEMENT">
          <font>
@@ -20,6 +28,41 @@
             <Font size="18.0" />
          </font>
       </Label>
+      <GridPane>
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label text="Customer:" />
+            <ComboBox fx:id="customerComboBox" prefWidth="150.0" GridPane.columnIndex="1" />
+            <Label text="Room:" GridPane.rowIndex="1" />
+            <ComboBox fx:id="roomComboBox" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label text="Check-in: " GridPane.rowIndex="2" />
+            <DatePicker fx:id="checkInDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Label text="Check-out:" GridPane.rowIndex="3" />
+            <Label text="Booking Type:" GridPane.rowIndex="4" />
+            <Label text="Extra Services:" GridPane.rowIndex="5" />
+            <DatePicker fx:id="checkOutDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <RadioButton fx:id="regularRadioButton" mnemonicParsing="false" text="Regular" GridPane.columnIndex="1" GridPane.rowIndex="4">
+               <toggleGroup>
+                  <ToggleGroup fx:id="bookingTypeGroup" />
+               </toggleGroup>
+            </RadioButton>
+            <RadioButton fx:id="vipRadioButton" mnemonicParsing="false" text="VIP" toggleGroup="$bookingTypeGroup" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+            <CheckBox fx:id="breakfastCheckBox" mnemonicParsing="false" text="Breakfast" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            <CheckBox fx:id="airportPickupCheckBox" mnemonicParsing="false" text="Airport Pickup" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+         </children>
+      </GridPane>
       <TableView fx:id="bookingTable" prefHeight="250.0" prefWidth="680.0">
         <columns>
           <TableColumn fx:id="bookingIdColumn" minWidth="80.0" prefWidth="75.0" text="Booking ID" />
