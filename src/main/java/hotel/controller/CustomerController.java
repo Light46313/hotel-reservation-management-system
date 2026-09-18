@@ -8,6 +8,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -21,9 +22,11 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
-public class CustomerController {
+public class CustomerController implements Initializable {
 
     // =========================
     // TABLE AND COLUMNS
@@ -65,11 +68,14 @@ public class CustomerController {
 
 
     // =========================
-    // INITIALIZE
+    // PART 8 - INITIALIZABLE
     // =========================
 
-    @FXML
-    public void initialize() {
+    @Override
+    public void initialize(
+            URL location,
+            ResourceBundle resources
+    ) {
 
         // Connect columns with Customer.java
 
@@ -154,6 +160,24 @@ public class CustomerController {
 
             // Save sample customers
             CustomerStorage.saveCustomers(customerList);
+        }
+
+
+        // =========================
+        // PART 8 - AUTOMATIC SETUP
+        // =========================
+
+        // Automatically select the first customer
+        // when Customer Management opens.
+
+        if (!customerList.isEmpty()) {
+
+            customerTable.getSelectionModel()
+                    .selectFirst();
+
+            System.out.println(
+                    "Customer Management initialized successfully."
+            );
         }
 
 
@@ -274,6 +298,7 @@ public class CustomerController {
             // =========================
 
             // This makes the photo change permanent
+
             CustomerStorage.saveCustomers(customerList);
 
 
@@ -416,6 +441,7 @@ public class CustomerController {
 
 
             // Save new customer permanently
+
             CustomerStorage.saveCustomers(customerList);
 
 
@@ -560,6 +586,7 @@ public class CustomerController {
 
 
         // Save updated customer permanently
+
         CustomerStorage.saveCustomers(customerList);
 
 
@@ -630,6 +657,7 @@ public class CustomerController {
 
 
             // Save deletion permanently
+
             CustomerStorage.saveCustomers(customerList);
 
 
