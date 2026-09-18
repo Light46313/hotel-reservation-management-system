@@ -5,6 +5,8 @@ import hotel.model.Customer;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
@@ -443,6 +445,89 @@ public class CustomerController {
             showMessage(
                     "Success",
                     "Customer deleted successfully!"
+            );
+        }
+    }
+
+
+    // =========================
+    // BOOK SELECTED CUSTOMER
+    // =========================
+
+    @FXML
+    private void bookSelectedCustomer() {
+
+        // Get the customer selected in the TableView
+
+        Customer selectedCustomer =
+                customerTable
+                        .getSelectionModel()
+                        .getSelectedItem();
+
+
+        // Check whether a customer was selected
+
+        if (selectedCustomer == null) {
+
+            showMessage(
+                    "Warning",
+                    "Please select a customer first."
+            );
+
+            return;
+        }
+
+
+        try {
+
+            // Load BookingView.fxml
+
+            FXMLLoader loader = new FXMLLoader(
+                    CustomerController.class.getResource(
+                            "/view/BookingView.fxml"
+                    )
+            );
+
+
+            Scene scene =
+                    new Scene(loader.load());
+
+
+            // Get the BookingController
+
+            BookingController controller =
+                    loader.getController();
+
+
+            // Pass the selected Customer
+            // from CustomerController
+            // to BookingController
+
+            controller.setSelectedCustomer(
+                    selectedCustomer
+            );
+
+
+            // Open Booking Management
+
+            Stage stage = new Stage();
+
+            stage.setTitle("Booking Management");
+            stage.setScene(scene);
+
+            stage.setWidth(800);
+            stage.setHeight(550);
+
+            stage.show();
+
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            showMessage(
+                    "Error",
+                    "Could not open Booking Management."
             );
         }
     }

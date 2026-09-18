@@ -8,12 +8,16 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
 <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" spacing="15.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hotel.controller.BookingController">
    <children>
       <Label text="BOOKING MANAGEMENT">
          <font>
             <Font size="28.0" />
+         </font>
+      </Label>
+      <Label fx:id="selectedCustomerLabel" text="No customer selected">
+         <font>
+            <Font size="18.0" />
          </font>
       </Label>
       <TableView fx:id="bookingTable" prefHeight="250.0" prefWidth="680.0">

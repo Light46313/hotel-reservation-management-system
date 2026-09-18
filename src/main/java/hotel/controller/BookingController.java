@@ -8,6 +8,7 @@ import hotel.model.Room;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextInputDialog;
@@ -40,6 +41,18 @@ public class BookingController {
 
     @FXML
     private TableColumn<Booking, LocalDate> checkOutColumn;
+
+
+    // =========================================
+    // SELECTED CUSTOMER
+    // =========================================
+
+    // This stores the Customer object
+    // received from CustomerController.
+    private Customer selectedCustomer;
+
+    @FXML
+    private Label selectedCustomerLabel;
 
 
     // =========================================
@@ -87,6 +100,32 @@ public class BookingController {
         // duplicate sample bookings from being added every
         // time this screen is opened.
         loadSampleDataIfEmpty();
+    }
+
+
+    // =========================================
+    // PASS CUSTOMER DATA
+    // =========================================
+
+    // This method receives a Customer object
+    // from CustomerController.
+    public void setSelectedCustomer(Customer customer) {
+
+        this.selectedCustomer = customer;
+
+        // Show the received customer's information
+        // in the Booking Management screen.
+        if (selectedCustomerLabel != null) {
+
+            selectedCustomerLabel.setText(
+                    "Selected Customer: ID = "
+                            + customer.getCustomerId()
+                            + " | Name = "
+                            + customer.getName()
+                            + " | Phone = "
+                            + customer.getPhone()
+            );
+        }
     }
 
 
@@ -193,22 +232,28 @@ public class BookingController {
         // Customer ID
         // -----------------------------------------
 
-        TextInputDialog customerIdDialog =
-                new TextInputDialog();
-
-        customerIdDialog.setTitle("Add Booking");
-        customerIdDialog.setHeaderText(
-                "Enter Customer ID"
-        );
-        customerIdDialog.setContentText(
-                "Customer ID:"
-        );
-
         Optional<String> customerIdResult =
-                customerIdDialog.showAndWait();
+                Optional.empty();
 
-        if (customerIdResult.isEmpty()) {
-            return;
+        if (selectedCustomer == null) {
+
+            TextInputDialog customerIdDialog =
+                    new TextInputDialog();
+
+            customerIdDialog.setTitle("Add Booking");
+            customerIdDialog.setHeaderText(
+                    "Enter Customer ID"
+            );
+            customerIdDialog.setContentText(
+                    "Customer ID:"
+            );
+
+            customerIdResult =
+                    customerIdDialog.showAndWait();
+
+            if (customerIdResult.isEmpty()) {
+                return;
+            }
         }
 
 
@@ -216,22 +261,28 @@ public class BookingController {
         // Customer Name
         // -----------------------------------------
 
-        TextInputDialog customerNameDialog =
-                new TextInputDialog();
-
-        customerNameDialog.setTitle("Add Booking");
-        customerNameDialog.setHeaderText(
-                "Enter Customer Name"
-        );
-        customerNameDialog.setContentText(
-                "Customer Name:"
-        );
-
         Optional<String> customerNameResult =
-                customerNameDialog.showAndWait();
+                Optional.empty();
 
-        if (customerNameResult.isEmpty()) {
-            return;
+        if (selectedCustomer == null) {
+
+            TextInputDialog customerNameDialog =
+                    new TextInputDialog();
+
+            customerNameDialog.setTitle("Add Booking");
+            customerNameDialog.setHeaderText(
+                    "Enter Customer Name"
+            );
+            customerNameDialog.setContentText(
+                    "Customer Name:"
+            );
+
+            customerNameResult =
+                    customerNameDialog.showAndWait();
+
+            if (customerNameResult.isEmpty()) {
+                return;
+            }
         }
 
 
@@ -315,19 +366,31 @@ public class BookingController {
                             bookingIdResult.get()
                     );
 
-            int customerId =
-                    Integer.parseInt(
-                            customerIdResult.get()
-                    );
+
+            // -----------------------------------------
+            // CUSTOMER DATA
+            // -----------------------------------------
+
+            int customerId = 0;
+
+            String customerName = "";
+
+            if (selectedCustomer == null) {
+
+                customerId =
+                        Integer.parseInt(
+                                customerIdResult.get()
+                        );
+
+                customerName =
+                        customerNameResult.get();
+            }
+
 
             int roomNumber =
                     Integer.parseInt(
                             roomNumberResult.get()
                     );
-
-
-            String customerName =
-                    customerNameResult.get();
 
 
             LocalDate checkIn =
@@ -353,18 +416,38 @@ public class BookingController {
             }
 
 
-            // Create Customer object
-            Customer customer =
-                    new Customer(
-                            customerId,
-                            customerName,
-                            "N/A",
-                            "N/A",
-                            "N/A"
-                    );
+            // =========================================
+            // CUSTOMER OBJECT
+            // =========================================
+
+            Customer customer;
+
+            if (selectedCustomer != null) {
+
+                // Use the customer received from
+                // Customer Management.
+                customer = selectedCustomer;
+
+            } else {
+
+                // Keep the original behavior when
+                // no customer was selected.
+
+                customer =
+                        new Customer(
+                                customerId,
+                                customerName,
+                                "N/A",
+                                "N/A",
+                                "N/A"
+                        );
+            }
 
 
-            // Create Room object
+            // =========================================
+            // ROOM OBJECT
+            // =========================================
+
             Room room =
                     new Room(
                             roomNumber,
@@ -374,7 +457,10 @@ public class BookingController {
                     );
 
 
-            // Create Booking object
+            // =========================================
+            // BOOKING OBJECT
+            // =========================================
+
             Booking booking =
                     new Booking(
                             bookingId,
