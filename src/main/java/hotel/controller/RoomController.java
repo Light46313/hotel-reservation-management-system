@@ -7,7 +7,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
@@ -34,6 +36,14 @@ public class RoomController {
 
     @FXML
     private TableColumn<Room, Boolean> availableColumn;
+
+
+    // =========================
+    // PART 7 - SEARCH ROOM
+    // =========================
+
+    @FXML
+    private TextField searchRoomField;
 
 
     // =========================
@@ -76,7 +86,41 @@ public class RoomController {
         roomTable.setItems(roomList);
 
 
-        // Sample rooms for testing
+        // =========================
+        // HIGHLIGHT SELECTED ROOM
+        // =========================
+
+        roomTable.setRowFactory(tableView -> {
+
+            TableRow<Room> row =
+                    new TableRow<>();
+
+            row.selectedProperty().addListener(
+                    (observable, oldValue, newValue) -> {
+
+                        if (newValue) {
+
+                            // Highlight selected room
+                            row.setStyle(
+                                    "-fx-background-color: #FFD54F;"
+                            );
+
+                        } else {
+
+                            // Remove custom highlight
+                            row.setStyle("");
+                        }
+                    }
+            );
+
+            return row;
+        });
+
+
+        // =========================
+        // SAMPLE ROOMS FOR TESTING
+        // =========================
+
         roomList.add(
                 new Room(101, "Single", 1500, true)
         );
@@ -88,6 +132,109 @@ public class RoomController {
         roomList.add(
                 new Room(103, "Suite", 4000, false)
         );
+
+
+        // =========================
+        // PART 7 - setOnAction()
+        // =========================
+
+        // Press Enter inside the TextField
+        // to search for the room.
+
+        searchRoomField.setOnAction(event -> {
+            searchRoom();
+        });
+    }
+
+
+    // =========================
+    // PART 7 - SEARCH ROOM
+    // =========================
+
+    private void searchRoom() {
+
+        // Get text from TextField
+
+        String roomNumberText =
+                searchRoomField.getText().trim();
+
+
+        // Check if the TextField is empty
+
+        if (roomNumberText.isEmpty()) {
+
+            showMessage(
+                    "Warning",
+                    "Please enter a room number."
+            );
+
+            return;
+        }
+
+
+        try {
+
+            // Convert entered text to integer
+
+            int roomNumber =
+                    Integer.parseInt(
+                            roomNumberText
+                    );
+
+
+            // Search through all rooms
+
+            for (Room room : roomList) {
+
+                if (room.getRoomNumber() == roomNumber) {
+
+                    // Select the found room
+
+                    roomTable.getSelectionModel()
+                            .select(room);
+
+
+                    // Scroll to the found room
+
+                    roomTable.scrollTo(room);
+
+
+                    // Give focus to the TableView
+
+                    roomTable.requestFocus();
+
+
+                    showMessage(
+                            "Room Found",
+                            "Room "
+                                    + roomNumber
+                                    + " found successfully."
+                    );
+
+                    return;
+                }
+            }
+
+
+            // Room was not found
+
+            showMessage(
+                    "Not Found",
+                    "Room "
+                            + roomNumber
+                            + " was not found."
+            );
+
+
+        } catch (NumberFormatException e) {
+
+            // Invalid input
+
+            showMessage(
+                    "Error",
+                    "Please enter a valid room number."
+            );
+        }
     }
 
 
