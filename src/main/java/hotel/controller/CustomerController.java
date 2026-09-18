@@ -1,6 +1,8 @@
 package hotel.controller;
 
 import hotel.model.Customer;
+import hotel.model.CustomerData;
+import hotel.model.CustomerStorage;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,12 +11,16 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.image.ImageView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.util.Optional;
 
 public class CustomerController {
@@ -43,11 +49,19 @@ public class CustomerController {
 
 
     // =========================
+    // PART 6 - CUSTOMER IMAGE
+    // =========================
+
+    @FXML
+    private ImageView customerImageView;
+
+
+    // =========================
     // CUSTOMER LIST
     // =========================
 
     private ObservableList<Customer> customerList =
-            FXCollections.observableArrayList();
+            CustomerData.customerList;
 
 
     // =========================
@@ -85,37 +99,196 @@ public class CustomerController {
         customerTable.setItems(customerList);
 
 
-        // Sample customers for testing
+        // =========================
+        // LOAD SAVED CUSTOMERS
+        // =========================
 
-        customerList.add(
-                new Customer(
-                        1,
-                        "Argho",
-                        "01711111111",
-                        "argho@gmail.com",
-                        "Dhaka"
+        // Clear the shared list first
+        customerList.clear();
+
+        // Load customers from customers.dat
+        ObservableList<Customer> savedCustomers =
+                CustomerStorage.loadCustomers();
+
+        customerList.addAll(savedCustomers);
+
+
+        // =========================
+        // SAMPLE CUSTOMERS
+        // =========================
+
+        // Add sample customers only
+        // if there are no saved customers.
+
+        if (customerList.isEmpty()) {
+
+            customerList.add(
+                    new Customer(
+                            1,
+                            "Argho",
+                            "01711111111",
+                            "argho@gmail.com",
+                            "Dhaka"
+                    )
+            );
+
+            customerList.add(
+                    new Customer(
+                            2,
+                            "Rahim",
+                            "01822222222",
+                            "rahim@gmail.com",
+                            "Chittagong"
+                    )
+            );
+
+            customerList.add(
+                    new Customer(
+                            3,
+                            "Karim",
+                            "01933333333",
+                            "karim@gmail.com",
+                            "Khulna"
+                    )
+            );
+
+            // Save sample customers
+            CustomerStorage.saveCustomers(customerList);
+        }
+
+
+        // =========================
+        // PART 6 - CUSTOMER SELECTION
+        // =========================
+
+        // When the user selects a customer,
+        // show that customer's saved photo.
+
+        customerTable.getSelectionModel()
+                .selectedItemProperty()
+                .addListener(
+                        (observable, oldCustomer, newCustomer) -> {
+
+                            if (newCustomer != null
+                                    && newCustomer.getPhotoPath() != null
+                                    && !newCustomer.getPhotoPath().isEmpty()) {
+
+                                Image image =
+                                        new Image(
+                                                newCustomer.getPhotoPath()
+                                        );
+
+                                customerImageView.setImage(image);
+
+                            } else {
+
+                                // No photo for this customer
+                                customerImageView.setImage(null);
+                            }
+                        }
+                );
+    }
+
+
+    // =========================
+    // PART 6 - BROWSE IMAGE
+    // =========================
+
+    @FXML
+    private void browseImage() {
+
+        // Get the selected customer
+
+        Customer selectedCustomer =
+                customerTable
+                        .getSelectionModel()
+                        .getSelectedItem();
+
+
+        // Make sure a customer is selected
+
+        if (selectedCustomer == null) {
+
+            showMessage(
+                    "Warning",
+                    "Please select a customer first."
+            );
+
+            return;
+        }
+
+
+        // Create FileChooser
+
+        FileChooser fileChooser =
+                new FileChooser();
+
+
+        // Set FileChooser title
+
+        fileChooser.setTitle(
+                "Select Customer Image"
+        );
+
+
+        // Allow image files only
+
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter(
+                        "Image Files",
+                        "*.png",
+                        "*.jpg",
+                        "*.jpeg"
                 )
         );
 
-        customerList.add(
-                new Customer(
-                        2,
-                        "Rahim",
-                        "01822222222",
-                        "rahim@gmail.com",
-                        "Chittagong"
-                )
-        );
 
-        customerList.add(
-                new Customer(
-                        3,
-                        "Karim",
-                        "01933333333",
-                        "karim@gmail.com",
-                        "Khulna"
-                )
-        );
+        // Get current window
+
+        Stage stage =
+                (Stage) customerImageView
+                        .getScene()
+                        .getWindow();
+
+
+        // Open FileChooser
+
+        File file =
+                fileChooser.showOpenDialog(stage);
+
+
+        // Check whether an image was selected
+
+        if (file != null) {
+
+            // Save the image path
+            // inside the selected Customer
+
+            selectedCustomer.setPhotoPath(
+                    file.toURI().toString()
+            );
+
+
+            // =========================
+            // SAVE CUSTOMER DATA
+            // =========================
+
+            // This makes the photo change permanent
+            CustomerStorage.saveCustomers(customerList);
+
+
+            // Create JavaFX Image
+
+            Image image =
+                    new Image(
+                            file.toURI().toString()
+                    );
+
+
+            // Display image in ImageView
+
+            customerImageView.setImage(image);
+        }
     }
 
 
@@ -240,6 +413,10 @@ public class CustomerController {
 
 
             customerList.add(customer);
+
+
+            // Save new customer permanently
+            CustomerStorage.saveCustomers(customerList);
 
 
             showMessage(
@@ -382,6 +559,10 @@ public class CustomerController {
         customerTable.refresh();
 
 
+        // Save updated customer permanently
+        CustomerStorage.saveCustomers(customerList);
+
+
         showMessage(
                 "Success",
                 "Customer updated successfully!"
@@ -440,6 +621,16 @@ public class CustomerController {
             customerList.remove(
                     selectedCustomer
             );
+
+
+            // Clear ImageView after deleting
+            // the selected customer
+
+            customerImageView.setImage(null);
+
+
+            // Save deletion permanently
+            CustomerStorage.saveCustomers(customerList);
 
 
             showMessage(

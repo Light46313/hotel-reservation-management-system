@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
@@ -24,6 +25,9 @@
             <TableColumn fx:id="addressColumn" minWidth="175.0" prefWidth="75.0" text="Address" />
         </columns>
       </TableView>
+      <Label text="Customer Photo" />
+      <ImageView fx:id="customerImageView" fitHeight="120.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true" />
+      <Button mnemonicParsing="false" onAction="#browseImage" text="Browse Image" />
       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
          <children>
             <Button mnemonicParsing="false" onAction="#addCustomer" prefHeight="50.0" prefWidth="100.0" text="Add Customer" />
