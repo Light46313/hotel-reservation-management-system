@@ -102,10 +102,35 @@ public class MainController {
     @FXML
     private void openBooking() {
 
-        showMessage(
-                "Booking",
-                "Booking section will open here."
-        );
+        try {
+
+            FXMLLoader loader = new FXMLLoader(
+                    MainController.class.getResource(
+                            "/view/BookingView.fxml"
+                    )
+            );
+
+            Scene scene = new Scene(loader.load());
+
+            Stage stage = new Stage();
+
+            stage.setTitle("Booking Management");
+            stage.setScene(scene);
+
+            stage.setWidth(800);
+            stage.setHeight(550);
+
+            stage.show();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            showMessage(
+                    "Error",
+                    "Could not open Booking Management."
+            );
+        }
     }
 
 
