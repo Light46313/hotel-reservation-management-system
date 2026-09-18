@@ -63,10 +63,35 @@ public class MainController {
     @FXML
     private void openCustomerManagement() {
 
-        showMessage(
-                "Customer Management",
-                "Customer Management section will open here."
-        );
+        try {
+
+            FXMLLoader loader = new FXMLLoader(
+                    MainController.class.getResource(
+                            "/view/CustomerView.fxml"
+                    )
+            );
+
+            Scene scene = new Scene(loader.load());
+
+            Stage stage = new Stage();
+
+            stage.setTitle("Customer Management");
+            stage.setScene(scene);
+
+            stage.setWidth(700);
+            stage.setHeight(500);
+
+            stage.show();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            showMessage(
+                    "Error",
+                    "Could not open Customer Management."
+            );
+        }
     }
 
 
