@@ -1,11 +1,10 @@
 package hotel.controller;
 
 import hotel.model.Booking;
+import hotel.model.BookingData;
 import hotel.model.Customer;
 import hotel.model.Room;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -44,14 +43,6 @@ public class BookingController {
 
 
     // =========================================
-    // BOOKING LIST
-    // =========================================
-
-    private ObservableList<Booking> bookingList =
-            FXCollections.observableArrayList();
-
-
-    // =========================================
     // INITIALIZE
     // =========================================
 
@@ -84,13 +75,30 @@ public class BookingController {
         );
 
 
-        // Connect list with TableView
-        bookingTable.setItems(bookingList);
+        // Connect the SHARED list with the TableView.
+        // BookingData.bookingList is the single source of
+        // truth used by both Booking Management and
+        // Booking History.
+        bookingTable.setItems(BookingData.bookingList);
 
 
-        // =========================================
-        // SAMPLE DATA
-        // =========================================
+        // Only add sample data the first time the app runs
+        // (when the shared list is still empty). This stops
+        // duplicate sample bookings from being added every
+        // time this screen is opened.
+        loadSampleDataIfEmpty();
+    }
+
+
+    // =========================================
+    // SAMPLE DATA (added only once)
+    // =========================================
+
+    private void loadSampleDataIfEmpty() {
+
+        if (!BookingData.bookingList.isEmpty()) {
+            return;
+        }
 
         Customer customer1 =
                 new Customer(
@@ -128,7 +136,7 @@ public class BookingController {
                 );
 
 
-        bookingList.add(
+        BookingData.bookingList.add(
                 new Booking(
                         1,
                         customer1,
@@ -139,7 +147,7 @@ public class BookingController {
         );
 
 
-        bookingList.add(
+        BookingData.bookingList.add(
                 new Booking(
                         2,
                         customer2,
@@ -377,8 +385,8 @@ public class BookingController {
                     );
 
 
-            // Add booking to list
-            bookingList.add(booking);
+            // Add booking to the SHARED list
+            BookingData.bookingList.add(booking);
 
 
             showMessage(
@@ -590,7 +598,7 @@ public class BookingController {
         if (result.isPresent()
                 && result.get() == ButtonType.OK) {
 
-            bookingList.remove(
+            BookingData.bookingList.remove(
                     selectedBooking
             );
 

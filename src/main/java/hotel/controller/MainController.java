@@ -96,7 +96,7 @@ public class MainController {
 
 
     // =========================
-    // BOOKING
+    // BOOKING MANAGEMENT
     // =========================
 
     @FXML
@@ -141,10 +141,35 @@ public class MainController {
     @FXML
     private void openBookingHistory() {
 
-        showMessage(
-                "Booking History",
-                "Booking History section will open here."
-        );
+        try {
+
+            FXMLLoader loader = new FXMLLoader(
+                    MainController.class.getResource(
+                            "/view/BookingHistoryView.fxml"
+                    )
+            );
+
+            Scene scene = new Scene(loader.load());
+
+            Stage stage = new Stage();
+
+            stage.setTitle("Booking History");
+            stage.setScene(scene);
+
+            stage.setWidth(800);
+            stage.setHeight(500);
+
+            stage.show();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            showMessage(
+                    "Error",
+                    "Could not open Booking History."
+            );
+        }
     }
 
 
