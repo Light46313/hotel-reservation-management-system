@@ -16,7 +16,11 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.Slider;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextInputDialog;
@@ -89,6 +93,26 @@ public class BookingController {
 
     @FXML
     private CheckBox airportPickupCheckBox;
+
+
+    // =========================================
+    // PART 11 CONTROLS
+    // =========================================
+
+    // Booking progress
+    @FXML
+    private ProgressBar bookingProgressBar;
+
+    // Room price range
+    @FXML
+    private Slider roomPriceSlider;
+
+    @FXML
+    private Label roomPriceLabel;
+
+    // Number of guests
+    @FXML
+    private Spinner<Integer> guestSpinner;
 
 
     // =========================================
@@ -174,21 +198,65 @@ public class BookingController {
 
 
         // =========================================
-        // NEW: LOAD CUSTOMERS INTO COMBOBOX
+        // LOAD CUSTOMERS INTO COMBOBOX
         // =========================================
 
         loadCustomersIntoComboBox();
 
 
         // =========================================
-        // NEW: LOAD ROOMS INTO COMBOBOX
+        // UPDATE SELECTED CUSTOMER LABEL
+        // =========================================
+
+        // When a customer is selected directly
+        // from the Customer ComboBox, update the
+        // selected customer and the label at the top.
+        if (customerComboBox != null) {
+
+            customerComboBox.valueProperty()
+                    .addListener(
+                            (observable, oldCustomer, newCustomer) -> {
+
+                                selectedCustomer = newCustomer;
+
+                                if (selectedCustomerLabel != null) {
+
+                                    if (newCustomer != null) {
+
+                                        selectedCustomerLabel.setText(
+                                                "Selected Customer: ID = "
+                                                        + newCustomer.getCustomerId()
+                                                        + " | Name = "
+                                                        + newCustomer.getName()
+                                                        + " | Phone = "
+                                                        + newCustomer.getPhone()
+                                        );
+
+                                    } else {
+
+                                        selectedCustomerLabel.setText(
+                                                "No customer selected"
+                                        );
+                                    }
+                                }
+
+                                // Update ProgressBar after
+                                // customer selection.
+                                updateBookingProgress();
+                            }
+                    );
+        }
+
+
+        // =========================================
+        // LOAD ROOMS INTO COMBOBOX
         // =========================================
 
         loadRoomsIntoComboBox();
 
 
         // =========================================
-        // NEW: DEFAULT BOOKING TYPE
+        // DEFAULT BOOKING TYPE
         // =========================================
 
         // Select Regular by default.
@@ -204,7 +272,7 @@ public class BookingController {
 
 
         // =========================================
-        // NEW: DATE FORMATTER
+        // DATE FORMATTER
         // =========================================
 
         // The DatePicker will display dates as:
@@ -291,11 +359,257 @@ public class BookingController {
                     }
                 }
         );
+
+
+        // =========================================
+        // PART 11 - PROGRESS BAR
+        // =========================================
+
+        setupBookingProgress();
+
+
+        // =========================================
+        // PART 11 - ROOM PRICE SLIDER
+        // =========================================
+
+        setupRoomPriceSlider();
+
+
+        // =========================================
+        // PART 11 - GUEST SPINNER
+        // =========================================
+
+        setupGuestSpinner();
     }
 
 
     // =========================================
-    // NEW: LOAD CUSTOMERS
+    // PART 11 - PROGRESS BAR SETUP
+    // =========================================
+
+    private void setupBookingProgress() {
+
+        if (bookingProgressBar == null) {
+            return;
+        }
+
+        // Start from 0%.
+        bookingProgressBar.setProgress(0);
+
+
+        // Customer selected
+        if (customerComboBox != null) {
+
+            customerComboBox.valueProperty()
+                    .addListener(
+                            (observable, oldValue, newValue) -> {
+                                updateBookingProgress();
+                            }
+                    );
+        }
+
+
+        // Room selected
+        if (roomComboBox != null) {
+
+            roomComboBox.valueProperty()
+                    .addListener(
+                            (observable, oldValue, newValue) -> {
+                                updateBookingProgress();
+                            }
+                    );
+        }
+
+
+        // Check-in selected
+        if (checkInDatePicker != null) {
+
+            checkInDatePicker.valueProperty()
+                    .addListener(
+                            (observable, oldValue, newValue) -> {
+                                updateBookingProgress();
+                            }
+                    );
+        }
+
+
+        // Check-out selected
+        if (checkOutDatePicker != null) {
+
+            checkOutDatePicker.valueProperty()
+                    .addListener(
+                            (observable, oldValue, newValue) -> {
+                                updateBookingProgress();
+                            }
+                    );
+        }
+
+
+        // Initial progress
+        updateBookingProgress();
+    }
+
+
+    // =========================================
+    // PART 11 - UPDATE PROGRESS
+    // =========================================
+
+    private void updateBookingProgress() {
+
+        if (bookingProgressBar == null) {
+            return;
+        }
+
+        double progress = 0.0;
+
+
+        // Step 1 - Customer
+        Customer customer = null;
+
+        if (selectedCustomer != null) {
+            customer = selectedCustomer;
+        } else if (customerComboBox != null) {
+            customer = customerComboBox.getValue();
+        }
+
+        if (customer != null) {
+            progress = 0.25;
+        }
+
+
+        // Step 2 - Room
+        if (roomComboBox != null
+                && roomComboBox.getValue() != null) {
+
+            progress = 0.50;
+        }
+
+
+        // Step 3 - Check-in date
+        if (checkInDatePicker != null
+                && checkInDatePicker.getValue() != null) {
+
+            progress = 0.75;
+        }
+
+
+        // Step 4 - Check-out date
+        if (checkOutDatePicker != null
+                && checkOutDatePicker.getValue() != null) {
+
+            progress = 1.0;
+        }
+
+
+        bookingProgressBar.setProgress(progress);
+    }
+
+
+    // =========================================
+    // PART 11 - ROOM PRICE SLIDER
+    // =========================================
+
+    private void setupRoomPriceSlider() {
+
+        if (roomPriceSlider == null) {
+            return;
+        }
+
+        // Minimum room price
+        roomPriceSlider.setMin(1000);
+
+        // Maximum room price
+        roomPriceSlider.setMax(5000);
+
+        // Starting price
+        roomPriceSlider.setValue(5000);
+
+        // Show the starting price
+        if (roomPriceLabel != null) {
+            roomPriceLabel.setText(
+                    "Room Price Range: 5000"
+            );
+        }
+
+        // Change price label and rooms when slider moves
+        roomPriceSlider.valueProperty()
+                .addListener(
+                        (observable, oldValue, newValue) -> {
+
+                            double price =
+                                    newValue.doubleValue();
+
+                            // Show current price
+                            if (roomPriceLabel != null) {
+
+                                roomPriceLabel.setText(
+                                        "Room Price Range: "
+                                                + (int) price
+                                );
+                            }
+
+                            // Filter rooms
+                            filterRoomsByPrice(price);
+                        }
+                );
+    }
+
+
+    // =========================================
+    // PART 11 - FILTER ROOMS BY PRICE
+    // =========================================
+
+    private void filterRoomsByPrice(
+            double maximumPrice) {
+
+        if (roomComboBox == null) {
+            return;
+        }
+
+        ObservableList<Room> filteredRooms =
+                FXCollections.observableArrayList();
+
+
+        for (Room room : roomList) {
+
+            if (room.getPrice() <= maximumPrice) {
+
+                filteredRooms.add(room);
+            }
+        }
+
+
+        roomComboBox.setItems(filteredRooms);
+    }
+
+
+    // =========================================
+    // PART 11 - GUEST SPINNER
+    // =========================================
+
+    private void setupGuestSpinner() {
+
+        if (guestSpinner == null) {
+            return;
+        }
+
+        // Minimum = 1 guest
+        // Maximum = 10 guests
+        // Starting value = 1 guest
+
+        guestSpinner.setValueFactory(
+                new SpinnerValueFactory
+                        .IntegerSpinnerValueFactory(
+                        1,
+                        10,
+                        1
+                )
+        );
+    }
+
+
+    // =========================================
+    // LOAD CUSTOMERS
     // =========================================
 
     private void loadCustomersIntoComboBox() {
@@ -355,7 +669,7 @@ public class BookingController {
 
 
     // =========================================
-    // NEW: LOAD ROOMS
+    // LOAD ROOMS
     // =========================================
 
     private void loadRoomsIntoComboBox() {
@@ -408,7 +722,6 @@ public class BookingController {
                         @Override
                         public Room fromString(
                                 String string) {
-
                             return null;
                         }
                     }
@@ -430,7 +743,7 @@ public class BookingController {
 
 
         // =========================================
-        // NEW: ADD RECEIVED CUSTOMER TO COMBOBOX
+        // ADD RECEIVED CUSTOMER TO COMBOBOX
         // =========================================
 
         if (customerComboBox != null) {
@@ -466,6 +779,10 @@ public class BookingController {
                             + customer.getPhone()
             );
         }
+
+
+        // Update progress after customer selection.
+        updateBookingProgress();
     }
 
 
@@ -746,6 +1063,20 @@ public class BookingController {
 
 
             // =========================================
+            // NUMBER OF GUESTS
+            // =========================================
+
+            int numberOfGuests = 1;
+
+            if (guestSpinner != null
+                    && guestSpinner.getValue() != null) {
+
+                numberOfGuests =
+                        guestSpinner.getValue();
+            }
+
+
+            // =========================================
             // BOOKING OBJECT
             // =========================================
 
@@ -780,6 +1111,9 @@ public class BookingController {
                             + "\n"
                             + "Extra Services: "
                             + extraServices
+                            + "\n"
+                            + "Number of Guests: "
+                            + numberOfGuests
             );
 
 
@@ -802,6 +1136,19 @@ public class BookingController {
             if (airportPickupCheckBox != null) {
                 airportPickupCheckBox.setSelected(false);
             }
+
+
+            // Reset guest count to 1.
+            if (guestSpinner != null
+                    && guestSpinner.getValueFactory() != null) {
+
+                guestSpinner.getValueFactory()
+                        .setValue(1);
+            }
+
+
+            // Update progress after clearing dates.
+            updateBookingProgress();
 
 
         } catch (NumberFormatException e) {
@@ -1078,7 +1425,6 @@ public class BookingController {
         alert.setHeaderText(null);
 
         alert.setContentText(message);
-
 
         alert.showAndWait();
     }
