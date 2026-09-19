@@ -174,6 +174,38 @@ public class MainController {
 
 
     // =========================
+    // MENU BAR - NEW
+    // =========================
+
+    @FXML
+    private void newAction() {
+
+        // File -> New will open
+        // the Booking Management window.
+
+        openBooking();
+    }
+
+
+    // =========================
+    // MENU BAR - OPEN
+    // =========================
+
+    @FXML
+    private void openAction() {
+
+        // For now, Open shows a message.
+        // We can give this menu item
+        // another function later.
+
+        showMessage(
+                "Open",
+                "Open option selected."
+        );
+    }
+
+
+    // =========================
     // EXIT
     // =========================
 
