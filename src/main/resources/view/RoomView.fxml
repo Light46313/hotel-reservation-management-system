@@ -6,6 +6,7 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
@@ -33,6 +34,7 @@
                      </font>
                   </Label>
                   <ListView fx:id="facilityListView" prefHeight="200.0" prefWidth="180.0" />
+                  <TreeView fx:id="hotelTreeView" prefHeight="180.0" prefWidth="200.0" />
                </children>
             </VBox>
             <TableView fx:id="roomTable" prefHeight="200.0" prefWidth="600.0">

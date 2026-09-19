@@ -12,6 +12,8 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
@@ -53,6 +55,14 @@ public class RoomController {
 
     @FXML
     private ListView<String> facilityListView;
+
+
+    // =========================
+    // PART 10 - TREEVIEW
+    // =========================
+
+    @FXML
+    private TreeView<String> hotelTreeView;
 
 
     // =========================
@@ -187,6 +197,114 @@ public class RoomController {
                                         "Selected Facility",
                                         "Selected Facility: "
                                                 + newValue
+                                );
+                            }
+                        }
+                );
+
+
+        // =========================
+        // PART 10 - TREEVIEW
+        // =========================
+
+        // Root node
+        TreeItem<String> hotel =
+                new TreeItem<>("Hotel");
+
+
+        // Rooms category
+        TreeItem<String> rooms =
+                new TreeItem<>("Rooms");
+
+        // Room types
+        TreeItem<String> single =
+                new TreeItem<>("Single");
+
+        TreeItem<String> doubleRoom =
+                new TreeItem<>("Double");
+
+        TreeItem<String> suite =
+                new TreeItem<>("Suite");
+
+
+        // Services category
+        TreeItem<String> services =
+                new TreeItem<>("Services");
+
+        // Services
+        TreeItem<String> restaurant =
+                new TreeItem<>("Restaurant");
+
+        TreeItem<String> gym =
+                new TreeItem<>("Gym");
+
+        TreeItem<String> swimmingPool =
+                new TreeItem<>("Swimming Pool");
+
+
+        // =========================
+        // ADD ROOM TYPES
+        // =========================
+
+        rooms.getChildren().addAll(
+                single,
+                doubleRoom,
+                suite
+        );
+
+
+        // =========================
+        // ADD SERVICES
+        // =========================
+
+        services.getChildren().addAll(
+                restaurant,
+                gym,
+                swimmingPool
+        );
+
+
+        // =========================
+        // ADD CATEGORIES TO HOTEL
+        // =========================
+
+        hotel.getChildren().addAll(
+                rooms,
+                services
+        );
+
+
+        // =========================
+        // SET TREE ROOT
+        // =========================
+
+        hotelTreeView.setRoot(hotel);
+
+
+        // Expand Hotel initially
+        hotel.setExpanded(true);
+
+
+        // Expand Rooms and Services initially
+        rooms.setExpanded(true);
+        services.setExpanded(true);
+
+
+        // =========================
+        // TREEVIEW SELECTION
+        // =========================
+
+        hotelTreeView.getSelectionModel()
+                .selectedItemProperty()
+                .addListener(
+                        (observable, oldValue, newValue) -> {
+
+                            if (newValue != null) {
+
+                                showMessage(
+                                        "Selected Node",
+                                        "Selected: "
+                                                + newValue.getValue()
                                 );
                             }
                         }
