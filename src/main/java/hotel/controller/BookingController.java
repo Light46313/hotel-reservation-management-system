@@ -384,6 +384,54 @@ public class BookingController {
 
 
     // =========================================
+    // PART 13 - WARNING ALERT
+    // =========================================
+
+    private void showWarning(
+            String title,
+            String message
+    ) {
+
+        Alert alert =
+                new Alert(
+                        Alert.AlertType.WARNING
+                );
+
+        alert.setTitle(title);
+
+        alert.setHeaderText(null);
+
+        alert.setContentText(message);
+
+        alert.showAndWait();
+    }
+
+
+    // =========================================
+    // PART 13 - ERROR ALERT
+    // =========================================
+
+    private void showError(
+            String title,
+            String message
+    ) {
+
+        Alert alert =
+                new Alert(
+                        Alert.AlertType.ERROR
+                );
+
+        alert.setTitle(title);
+
+        alert.setHeaderText(null);
+
+        alert.setContentText(message);
+
+        alert.showAndWait();
+    }
+
+
+    // =========================================
     // PART 11 - PROGRESS BAR SETUP
     // =========================================
 
@@ -468,9 +516,11 @@ public class BookingController {
 
         if (selectedCustomer != null) {
             customer = selectedCustomer;
+
         } else if (customerComboBox != null) {
             customer = customerComboBox.getValue();
         }
+
 
         if (customer != null) {
             progress = 0.25;
@@ -526,6 +576,7 @@ public class BookingController {
 
         // Show the starting price
         if (roomPriceLabel != null) {
+
             roomPriceLabel.setText(
                     "Room Price Range: 5000"
             );
@@ -722,14 +773,13 @@ public class BookingController {
                         @Override
                         public Room fromString(
                                 String string) {
+
                             return null;
                         }
                     }
             );
         }
     }
-
-
     // =========================================
     // PASS CUSTOMER DATA
     // =========================================
@@ -929,7 +979,8 @@ public class BookingController {
 
                 if (customer == null) {
 
-                    showMessage(
+                    // PART 13 - WARNING
+                    showWarning(
                             "Warning",
                             "Please select a customer."
                     );
@@ -949,7 +1000,8 @@ public class BookingController {
 
             if (room == null) {
 
-                showMessage(
+                // PART 13 - WARNING
+                showWarning(
                         "Warning",
                         "Please select a room."
                 );
@@ -968,7 +1020,8 @@ public class BookingController {
 
             if (checkIn == null) {
 
-                showMessage(
+                // PART 13 - WARNING
+                showWarning(
                         "Warning",
                         "Please select check-in date."
                 );
@@ -987,7 +1040,8 @@ public class BookingController {
 
             if (checkOut == null) {
 
-                showMessage(
+                // PART 13 - WARNING
+                showWarning(
                         "Warning",
                         "Please select check-out date."
                 );
@@ -1002,7 +1056,8 @@ public class BookingController {
 
             if (!checkOut.isAfter(checkIn)) {
 
-                showMessage(
+                // PART 13 - ERROR
+                showError(
                         "Error",
                         "Check-out date must be after check-in date."
                 );
@@ -1153,7 +1208,8 @@ public class BookingController {
 
         } catch (NumberFormatException e) {
 
-            showMessage(
+            // PART 13 - ERROR
+            showError(
                     "Error",
                     "Please enter a valid Booking ID."
             );
@@ -1162,7 +1218,8 @@ public class BookingController {
 
             e.printStackTrace();
 
-            showMessage(
+            // PART 13 - ERROR
+            showError(
                     "Error",
                     "Something went wrong while adding the booking."
             );
@@ -1185,7 +1242,8 @@ public class BookingController {
 
         if (selectedBooking == null) {
 
-            showMessage(
+            // PART 13 - WARNING
+            showWarning(
                     "Warning",
                     "Please select a booking first."
             );
@@ -1282,7 +1340,8 @@ public class BookingController {
 
             if (!newCheckOut.isAfter(newCheckIn)) {
 
-                showMessage(
+                // PART 13 - ERROR
+                showError(
                         "Error",
                         "Check-out date must be after check-in date."
                 );
@@ -1304,6 +1363,7 @@ public class BookingController {
             bookingTable.refresh();
 
 
+            // Existing INFORMATION alert
             showMessage(
                     "Success",
                     "Booking updated successfully!"
@@ -1312,7 +1372,8 @@ public class BookingController {
 
         } catch (Exception e) {
 
-            showMessage(
+            // PART 13 - ERROR
+            showError(
                     "Error",
                     "Please enter dates in YYYY-MM-DD format."
             );
@@ -1335,7 +1396,8 @@ public class BookingController {
 
         if (selectedBooking == null) {
 
-            showMessage(
+            // PART 13 - WARNING
+            showWarning(
                     "Warning",
                     "Please select a booking first."
             );
@@ -1343,6 +1405,10 @@ public class BookingController {
             return;
         }
 
+
+        // =========================================
+        // CONFIRMATION ALERT
+        // =========================================
 
         Alert confirmation =
                 new Alert(
@@ -1380,6 +1446,7 @@ public class BookingController {
             );
 
 
+            // Existing INFORMATION alert
             showMessage(
                     "Success",
                     "Booking deleted successfully!"
@@ -1406,7 +1473,7 @@ public class BookingController {
 
 
     // =========================================
-    // COMMON MESSAGE
+    // COMMON INFORMATION MESSAGE
     // =========================================
 
     private void showMessage(
