@@ -8,19 +8,19 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage stage) throws Exception {
 
+        // Start with Login Page
         FXMLLoader loader = new FXMLLoader(
-                Main.class.getResource("/view/MainView.fxml")
+                Main.class.getResource("/view/LoginView.fxml")
         );
 
         Scene scene = new Scene(loader.load());
 
-        primaryStage.setTitle("Hotel Reservation and Management System");
-        primaryStage.setScene(scene);
-        primaryStage.setWidth(600);
-        primaryStage.setHeight(600);
-        primaryStage.show();
+        stage.setTitle("Hotel Reservation and Management System");
+        stage.setScene(scene);
+        stage.setResizable(false);
+        stage.show();
     }
 
     public static void main(String[] args) {
