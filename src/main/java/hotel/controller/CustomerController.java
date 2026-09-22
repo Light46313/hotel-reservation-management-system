@@ -15,6 +15,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.image.ImageView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
@@ -57,6 +58,10 @@ public class CustomerController implements Initializable {
 
     @FXML
     private ImageView customerImageView;
+
+    // PART 14 - SPECIAL REQUEST / CUSTOMER NOTES
+    @FXML
+    private TextArea specialRequestTextArea;
 
 
     // =========================
@@ -670,6 +675,17 @@ public class CustomerController implements Initializable {
 
 
     // =========================
+    // PART 14 - CLEAR SPECIAL REQUEST
+    // =========================
+
+    @FXML
+    private void clearSpecialRequest() {
+        if (specialRequestTextArea != null) {
+            specialRequestTextArea.clear();
+        }
+    }
+
+
     // BOOK SELECTED CUSTOMER
     // =========================
 
