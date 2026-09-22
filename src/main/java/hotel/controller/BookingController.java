@@ -4,6 +4,9 @@ import hotel.model.Booking;
 import hotel.model.BookingData;
 import hotel.model.Customer;
 import hotel.model.Room;
+import hotel.service.BookingService;
+
+import javafx.application.Platform;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -31,15 +34,29 @@ import javafx.stage.Stage;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+
 import java.util.Optional;
+
+import java.util.concurrent.Future;
 
 
 public class BookingController {
 
+    // =========================================================
+    // BOOKING SERVICE
+    // =========================================================
 
-    // =========================================
+    /*
+     * BookingService handles the booking process
+     * using multithreading.
+     */
+    private final BookingService bookingService =
+            new BookingService();
+
+
+    // =========================================================
     // TABLE AND COLUMNS
-    // =========================================
+    // =========================================================
 
     @FXML
     private TableView<Booking> bookingTable;
@@ -60,34 +77,38 @@ public class BookingController {
     private TableColumn<Booking, LocalDate> checkOutColumn;
 
 
-    // =========================================
-    // NEW BOOKING CONTROLS
-    // =========================================
+    // =========================================================
+    // BOOKING INPUT CONTROLS
+    // =========================================================
 
-    // Customer ComboBox
     @FXML
     private ComboBox<Customer> customerComboBox;
 
-    // Room ComboBox
     @FXML
     private ComboBox<Room> roomComboBox;
 
-    // Check-in DatePicker
     @FXML
     private DatePicker checkInDatePicker;
 
-    // Check-out DatePicker
     @FXML
     private DatePicker checkOutDatePicker;
 
-    // Booking Type
+
+    // =========================================================
+    // BOOKING TYPE
+    // =========================================================
+
     @FXML
     private RadioButton regularRadioButton;
 
     @FXML
     private RadioButton vipRadioButton;
 
-    // Extra Services
+
+    // =========================================================
+    // EXTRA SERVICES
+    // =========================================================
+
     @FXML
     private CheckBox breakfastCheckBox;
 
@@ -95,29 +116,26 @@ public class BookingController {
     private CheckBox airportPickupCheckBox;
 
 
-    // =========================================
+    // =========================================================
     // PART 11 CONTROLS
-    // =========================================
+    // =========================================================
 
-    // Booking progress
     @FXML
     private ProgressBar bookingProgressBar;
 
-    // Room price range
     @FXML
     private Slider roomPriceSlider;
 
     @FXML
     private Label roomPriceLabel;
 
-    // Number of guests
     @FXML
     private Spinner<Integer> guestSpinner;
 
 
-    // =========================================
-    // NEW LISTS FOR COMBOBOX
-    // =========================================
+    // =========================================================
+    // LISTS
+    // =========================================================
 
     private ObservableList<Customer> customerList =
             FXCollections.observableArrayList();
@@ -126,98 +144,85 @@ public class BookingController {
             FXCollections.observableArrayList();
 
 
-    // =========================================
+    // =========================================================
     // SELECTED CUSTOMER
-    // =========================================
+    // =========================================================
 
-    // This stores the Customer object
-    // received from CustomerController.
     private Customer selectedCustomer;
 
     @FXML
     private Label selectedCustomerLabel;
 
 
-    // =========================================
+    // =========================================================
     // INITIALIZE
-    // =========================================
+    // =========================================================
 
     @FXML
     public void initialize() {
 
-        // -----------------------------------------
+        // ---------------------------------------------------------
         // TABLE COLUMN CONNECTIONS
-        // -----------------------------------------
+        // ---------------------------------------------------------
 
-        // Connect Booking ID column
         bookingIdColumn.setCellValueFactory(
                 new PropertyValueFactory<>("bookingId")
         );
 
-        // Connect Customer column
         customerColumn.setCellValueFactory(
                 new PropertyValueFactory<>("customer")
         );
 
-        // Connect Room column
         roomColumn.setCellValueFactory(
                 new PropertyValueFactory<>("room")
         );
 
-        // Connect Check In column
         checkInColumn.setCellValueFactory(
                 new PropertyValueFactory<>("checkIn")
         );
 
-        // Connect Check Out column
         checkOutColumn.setCellValueFactory(
                 new PropertyValueFactory<>("checkOut")
         );
 
 
-        // -----------------------------------------
-        // CONNECT SHARED BOOKING LIST
-        // -----------------------------------------
+        // ---------------------------------------------------------
+        // SHARED BOOKING LIST
+        // ---------------------------------------------------------
 
-        // Connect the SHARED list with the TableView.
-        // BookingData.bookingList is the single source of
-        // truth used by both Booking Management and
-        // Booking History.
         bookingTable.setItems(
                 BookingData.bookingList
         );
 
 
-        // -----------------------------------------
+        // ---------------------------------------------------------
         // LOAD SAMPLE DATA
-        // -----------------------------------------
+        // ---------------------------------------------------------
 
-        // Only add sample data the first time the app runs
-        // when the shared list is still empty.
         loadSampleDataIfEmpty();
 
 
-        // =========================================
-        // LOAD CUSTOMERS INTO COMBOBOX
-        // =========================================
+        // ---------------------------------------------------------
+        // LOAD CUSTOMERS
+        // ---------------------------------------------------------
 
         loadCustomersIntoComboBox();
 
 
-        // =========================================
-        // UPDATE SELECTED CUSTOMER LABEL
-        // =========================================
+        // ---------------------------------------------------------
+        // CUSTOMER COMBOBOX LISTENER
+        // ---------------------------------------------------------
 
-        // When a customer is selected directly
-        // from the Customer ComboBox, update the
-        // selected customer and the label at the top.
         if (customerComboBox != null) {
 
             customerComboBox.valueProperty()
                     .addListener(
-                            (observable, oldCustomer, newCustomer) -> {
+                            (observable,
+                             oldCustomer,
+                             newCustomer) -> {
 
-                                selectedCustomer = newCustomer;
+                                selectedCustomer =
+                                        newCustomer;
 
                                 if (selectedCustomerLabel != null) {
 
@@ -240,26 +245,23 @@ public class BookingController {
                                     }
                                 }
 
-                                // Update ProgressBar after
-                                // customer selection.
                                 updateBookingProgress();
                             }
                     );
         }
 
 
-        // =========================================
-        // LOAD ROOMS INTO COMBOBOX
-        // =========================================
+        // ---------------------------------------------------------
+        // LOAD ROOMS
+        // ---------------------------------------------------------
 
         loadRoomsIntoComboBox();
 
 
-        // =========================================
+        // ---------------------------------------------------------
         // DEFAULT BOOKING TYPE
-        // =========================================
+        // ---------------------------------------------------------
 
-        // Select Regular by default.
         if (regularRadioButton != null
                 && vipRadioButton != null) {
 
@@ -271,126 +273,127 @@ public class BookingController {
         }
 
 
-        // =========================================
+        // ---------------------------------------------------------
         // DATE FORMATTER
-        // =========================================
-
-        // The DatePicker will display dates as:
-        // dd/MM/yyyy
-        //
-        // Example:
-        // 18/09/2026
+        // ---------------------------------------------------------
 
         DateTimeFormatter formatter =
-                DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                DateTimeFormatter.ofPattern(
+                        "dd/MM/yyyy"
+                );
 
 
-        // -----------------------------------------
+        // ---------------------------------------------------------
         // CHECK-IN DATE FORMATTER
-        // -----------------------------------------
+        // ---------------------------------------------------------
 
-        checkInDatePicker.setConverter(
-                new javafx.util.StringConverter<LocalDate>() {
+        if (checkInDatePicker != null) {
 
-                    @Override
-                    public String toString(
-                            LocalDate date) {
+            checkInDatePicker.setConverter(
+                    new javafx.util.StringConverter<LocalDate>() {
 
-                        if (date == null) {
-                            return "";
+                        @Override
+                        public String toString(
+                                LocalDate date) {
+
+                            if (date == null) {
+                                return "";
+                            }
+
+                            return formatter.format(date);
                         }
 
-                        return formatter.format(date);
-                    }
 
+                        @Override
+                        public LocalDate fromString(
+                                String text) {
 
-                    @Override
-                    public LocalDate fromString(
-                            String text) {
+                            if (text == null
+                                    || text.trim().isEmpty()) {
 
-                        if (text == null
-                                || text.trim().isEmpty()) {
+                                return null;
+                            }
 
-                            return null;
+                            return LocalDate.parse(
+                                    text,
+                                    formatter
+                            );
                         }
-
-                        return LocalDate.parse(
-                                text,
-                                formatter
-                        );
                     }
-                }
-        );
+            );
+        }
 
 
-        // -----------------------------------------
+        // ---------------------------------------------------------
         // CHECK-OUT DATE FORMATTER
-        // -----------------------------------------
+        // ---------------------------------------------------------
 
-        checkOutDatePicker.setConverter(
-                new javafx.util.StringConverter<LocalDate>() {
+        if (checkOutDatePicker != null) {
 
-                    @Override
-                    public String toString(
-                            LocalDate date) {
+            checkOutDatePicker.setConverter(
+                    new javafx.util.StringConverter<LocalDate>() {
 
-                        if (date == null) {
-                            return "";
+                        @Override
+                        public String toString(
+                                LocalDate date) {
+
+                            if (date == null) {
+                                return "";
+                            }
+
+                            return formatter.format(date);
                         }
 
-                        return formatter.format(date);
-                    }
 
+                        @Override
+                        public LocalDate fromString(
+                                String text) {
 
-                    @Override
-                    public LocalDate fromString(
-                            String text) {
+                            if (text == null
+                                    || text.trim().isEmpty()) {
 
-                        if (text == null
-                                || text.trim().isEmpty()) {
+                                return null;
+                            }
 
-                            return null;
+                            return LocalDate.parse(
+                                    text,
+                                    formatter
+                            );
                         }
-
-                        return LocalDate.parse(
-                                text,
-                                formatter
-                        );
                     }
-                }
-        );
+            );
+        }
 
 
-        // =========================================
-        // PART 11 - PROGRESS BAR
-        // =========================================
+        // ---------------------------------------------------------
+        // PROGRESS BAR
+        // ---------------------------------------------------------
 
         setupBookingProgress();
 
 
-        // =========================================
-        // PART 11 - ROOM PRICE SLIDER
-        // =========================================
+        // ---------------------------------------------------------
+        // ROOM PRICE SLIDER
+        // ---------------------------------------------------------
 
         setupRoomPriceSlider();
 
 
-        // =========================================
-        // PART 11 - GUEST SPINNER
-        // =========================================
+        // ---------------------------------------------------------
+        // GUEST SPINNER
+        // ---------------------------------------------------------
 
         setupGuestSpinner();
     }
 
 
-    // =========================================
-    // PART 13 - WARNING ALERT
-    // =========================================
+    // =========================================================
+    // WARNING MESSAGE
+    // =========================================================
 
     private void showWarning(
             String title,
-            String message
-    ) {
+            String message) {
 
         Alert alert =
                 new Alert(
@@ -398,23 +401,20 @@ public class BookingController {
                 );
 
         alert.setTitle(title);
-
         alert.setHeaderText(null);
-
         alert.setContentText(message);
 
         alert.showAndWait();
     }
 
 
-    // =========================================
-    // PART 13 - ERROR ALERT
-    // =========================================
+    // =========================================================
+    // ERROR MESSAGE
+    // =========================================================
 
     private void showError(
             String title,
-            String message
-    ) {
+            String message) {
 
         Alert alert =
                 new Alert(
@@ -422,18 +422,16 @@ public class BookingController {
                 );
 
         alert.setTitle(title);
-
         alert.setHeaderText(null);
-
         alert.setContentText(message);
 
         alert.showAndWait();
     }
 
 
-    // =========================================
-    // PART 11 - PROGRESS BAR SETUP
-    // =========================================
+    // =========================================================
+    // PART 11 - PROGRESS BAR
+    // =========================================================
 
     private void setupBookingProgress() {
 
@@ -441,7 +439,7 @@ public class BookingController {
             return;
         }
 
-        // Start from 0%.
+        // Start at 0%
         bookingProgressBar.setProgress(0);
 
 
@@ -450,7 +448,10 @@ public class BookingController {
 
             customerComboBox.valueProperty()
                     .addListener(
-                            (observable, oldValue, newValue) -> {
+                            (observable,
+                             oldValue,
+                             newValue) -> {
+
                                 updateBookingProgress();
                             }
                     );
@@ -462,7 +463,10 @@ public class BookingController {
 
             roomComboBox.valueProperty()
                     .addListener(
-                            (observable, oldValue, newValue) -> {
+                            (observable,
+                             oldValue,
+                             newValue) -> {
+
                                 updateBookingProgress();
                             }
                     );
@@ -474,7 +478,10 @@ public class BookingController {
 
             checkInDatePicker.valueProperty()
                     .addListener(
-                            (observable, oldValue, newValue) -> {
+                            (observable,
+                             oldValue,
+                             newValue) -> {
+
                                 updateBookingProgress();
                             }
                     );
@@ -486,21 +493,23 @@ public class BookingController {
 
             checkOutDatePicker.valueProperty()
                     .addListener(
-                            (observable, oldValue, newValue) -> {
+                            (observable,
+                             oldValue,
+                             newValue) -> {
+
                                 updateBookingProgress();
                             }
                     );
         }
 
 
-        // Initial progress
         updateBookingProgress();
     }
 
 
-    // =========================================
-    // PART 11 - UPDATE PROGRESS
-    // =========================================
+    // =========================================================
+    // UPDATE PROGRESS BAR
+    // =========================================================
 
     private void updateBookingProgress() {
 
@@ -511,23 +520,32 @@ public class BookingController {
         double progress = 0.0;
 
 
-        // Step 1 - Customer
+        // ---------------------------------------------------------
+        // STEP 1 - CUSTOMER
+        // ---------------------------------------------------------
+
         Customer customer = null;
 
         if (selectedCustomer != null) {
+
             customer = selectedCustomer;
 
         } else if (customerComboBox != null) {
-            customer = customerComboBox.getValue();
+
+            customer =
+                    customerComboBox.getValue();
         }
 
-
         if (customer != null) {
+
             progress = 0.25;
         }
 
 
-        // Step 2 - Room
+        // ---------------------------------------------------------
+        // STEP 2 - ROOM
+        // ---------------------------------------------------------
+
         if (roomComboBox != null
                 && roomComboBox.getValue() != null) {
 
@@ -535,7 +553,10 @@ public class BookingController {
         }
 
 
-        // Step 3 - Check-in date
+        // ---------------------------------------------------------
+        // STEP 3 - CHECK-IN
+        // ---------------------------------------------------------
+
         if (checkInDatePicker != null
                 && checkInDatePicker.getValue() != null) {
 
@@ -543,7 +564,10 @@ public class BookingController {
         }
 
 
-        // Step 4 - Check-out date
+        // ---------------------------------------------------------
+        // STEP 4 - CHECK-OUT
+        // ---------------------------------------------------------
+
         if (checkOutDatePicker != null
                 && checkOutDatePicker.getValue() != null) {
 
@@ -555,9 +579,9 @@ public class BookingController {
     }
 
 
-    // =========================================
+    // =========================================================
     // PART 11 - ROOM PRICE SLIDER
-    // =========================================
+    // =========================================================
 
     private void setupRoomPriceSlider() {
 
@@ -565,16 +589,20 @@ public class BookingController {
             return;
         }
 
-        // Minimum room price
+
+        // Minimum price
         roomPriceSlider.setMin(1000);
 
-        // Maximum room price
+
+        // Maximum price
         roomPriceSlider.setMax(5000);
 
-        // Starting price
+
+        // Starting value
         roomPriceSlider.setValue(5000);
 
-        // Show the starting price
+
+        // Display starting price
         if (roomPriceLabel != null) {
 
             roomPriceLabel.setText(
@@ -582,15 +610,19 @@ public class BookingController {
             );
         }
 
-        // Change price label and rooms when slider moves
+
+        // Slider listener
         roomPriceSlider.valueProperty()
                 .addListener(
-                        (observable, oldValue, newValue) -> {
+                        (observable,
+                         oldValue,
+                         newValue) -> {
 
                             double price =
                                     newValue.doubleValue();
 
-                            // Show current price
+
+                            // Update label
                             if (roomPriceLabel != null) {
 
                                 roomPriceLabel.setText(
@@ -599,6 +631,7 @@ public class BookingController {
                                 );
                             }
 
+
                             // Filter rooms
                             filterRoomsByPrice(price);
                         }
@@ -606,9 +639,9 @@ public class BookingController {
     }
 
 
-    // =========================================
-    // PART 11 - FILTER ROOMS BY PRICE
-    // =========================================
+    // =========================================================
+    // FILTER ROOMS BY PRICE
+    // =========================================================
 
     private void filterRoomsByPrice(
             double maximumPrice) {
@@ -617,26 +650,30 @@ public class BookingController {
             return;
         }
 
+
         ObservableList<Room> filteredRooms =
                 FXCollections.observableArrayList();
 
 
         for (Room room : roomList) {
 
-            if (room.getPrice() <= maximumPrice) {
+            if (room.getPrice()
+                    <= maximumPrice) {
 
                 filteredRooms.add(room);
             }
         }
 
 
-        roomComboBox.setItems(filteredRooms);
+        roomComboBox.setItems(
+                filteredRooms
+        );
     }
 
 
-    // =========================================
+    // =========================================================
     // PART 11 - GUEST SPINNER
-    // =========================================
+    // =========================================================
 
     private void setupGuestSpinner() {
 
@@ -644,9 +681,12 @@ public class BookingController {
             return;
         }
 
-        // Minimum = 1 guest
-        // Maximum = 10 guests
-        // Starting value = 1 guest
+
+        /*
+         * Minimum = 1
+         * Maximum = 10
+         * Initial value = 1
+         */
 
         guestSpinner.setValueFactory(
                 new SpinnerValueFactory
@@ -659,16 +699,19 @@ public class BookingController {
     }
 
 
-    // =========================================
+    // =========================================================
     // LOAD CUSTOMERS
-    // =========================================
+    // =========================================================
 
     private void loadCustomersIntoComboBox() {
 
         customerList.clear();
 
 
-        // Take customers from existing bookings.
+        /*
+         * Take customers from existing bookings.
+         */
+
         for (Booking booking :
                 BookingData.bookingList) {
 
@@ -683,7 +726,6 @@ public class BookingController {
         }
 
 
-        // Connect list to ComboBox
         if (customerComboBox != null) {
 
             customerComboBox.setItems(
@@ -691,7 +733,7 @@ public class BookingController {
             );
 
 
-            // Show customer name in ComboBox
+            // Show customer name
             customerComboBox.setConverter(
                     new javafx.util.StringConverter<Customer>() {
 
@@ -719,16 +761,19 @@ public class BookingController {
     }
 
 
-    // =========================================
+    // =========================================================
     // LOAD ROOMS
-    // =========================================
+    // =========================================================
 
     private void loadRoomsIntoComboBox() {
 
         roomList.clear();
 
 
-        // Take rooms from existing bookings.
+        /*
+         * Take rooms from existing bookings.
+         */
+
         for (Booking booking :
                 BookingData.bookingList) {
 
@@ -743,7 +788,6 @@ public class BookingController {
         }
 
 
-        // Connect list to ComboBox
         if (roomComboBox != null) {
 
             roomComboBox.setItems(
@@ -780,44 +824,36 @@ public class BookingController {
             );
         }
     }
-    // =========================================
-    // PASS CUSTOMER DATA
-    // =========================================
 
-    // This method receives a Customer object
-    // from CustomerController.
+
+    // =========================================================
+    // PASS CUSTOMER DATA
+    // =========================================================
+
+    /*
+     * This method receives a Customer object
+     * from CustomerController.
+     */
+
     public void setSelectedCustomer(
             Customer customer) {
 
         this.selectedCustomer = customer;
 
 
-        // =========================================
-        // ADD RECEIVED CUSTOMER TO COMBOBOX
-        // =========================================
-
+        // Add customer to ComboBox
         if (customerComboBox != null) {
 
-            // Add customer if it is not already there.
             if (!customerList.contains(customer)) {
 
                 customerList.add(customer);
             }
 
-
-            // Automatically select the received customer.
-            customerComboBox.setValue(
-                    customer
-            );
+            customerComboBox.setValue(customer);
         }
 
 
-        // =========================================
-        // SHOW SELECTED CUSTOMER
-        // =========================================
-
-        // Show the received customer's information
-        // in the Booking Management screen.
+        // Show selected customer
         if (selectedCustomerLabel != null) {
 
             selectedCustomerLabel.setText(
@@ -831,14 +867,13 @@ public class BookingController {
         }
 
 
-        // Update progress after customer selection.
         updateBookingProgress();
     }
 
 
-    // =========================================
+    // =========================================================
     // SAMPLE DATA
-    // =========================================
+    // =========================================================
 
     private void loadSampleDataIfEmpty() {
 
@@ -846,6 +881,10 @@ public class BookingController {
             return;
         }
 
+
+        // ---------------------------------------------------------
+        // CUSTOMER 1
+        // ---------------------------------------------------------
 
         Customer customer1 =
                 new Customer(
@@ -857,6 +896,10 @@ public class BookingController {
                 );
 
 
+        // ---------------------------------------------------------
+        // CUSTOMER 2
+        // ---------------------------------------------------------
+
         Customer customer2 =
                 new Customer(
                         2,
@@ -867,6 +910,10 @@ public class BookingController {
                 );
 
 
+        // ---------------------------------------------------------
+        // ROOM 1
+        // ---------------------------------------------------------
+
         Room room1 =
                 new Room(
                         101,
@@ -876,6 +923,10 @@ public class BookingController {
                 );
 
 
+        // ---------------------------------------------------------
+        // ROOM 2
+        // ---------------------------------------------------------
+
         Room room2 =
                 new Room(
                         102,
@@ -884,6 +935,10 @@ public class BookingController {
                         true
                 );
 
+
+        // ---------------------------------------------------------
+        // SAMPLE BOOKING 1
+        // ---------------------------------------------------------
 
         BookingData.bookingList.add(
                 new Booking(
@@ -895,6 +950,10 @@ public class BookingController {
                 )
         );
 
+
+        // ---------------------------------------------------------
+        // SAMPLE BOOKING 2
+        // ---------------------------------------------------------
 
         BookingData.bookingList.add(
                 new Booking(
@@ -908,17 +967,32 @@ public class BookingController {
     }
 
 
-    // =========================================
+// =========================================================
+// END OF FIRST HALF
+// =========================================================
+
+/*
+ * The next part will start here with:
+ *
+ * @FXML
+ * private void addBooking()
+ *
+ * In that method the multithreading code will use
+ * finalBookingType,
+ * finalExtraServices,
+ * finalNumberOfGuests
+ * so the lambda errors are removed.
+ */
+    // =========================================================
     // ADD BOOKING
-    // =========================================
+    // =========================================================
 
     @FXML
     private void addBooking() {
 
-
-        // =========================================
+        // ---------------------------------------------------------
         // BOOKING ID
-        // =========================================
+        // ---------------------------------------------------------
 
         TextInputDialog bookingIdDialog =
                 new TextInputDialog();
@@ -935,10 +1009,8 @@ public class BookingController {
                 "Booking ID:"
         );
 
-
         Optional<String> bookingIdResult =
                 bookingIdDialog.showAndWait();
-
 
         if (bookingIdResult.isEmpty()) {
             return;
@@ -947,9 +1019,9 @@ public class BookingController {
 
         try {
 
-            // =========================================
+            // ---------------------------------------------------------
             // BOOKING ID
-            // =========================================
+            // ---------------------------------------------------------
 
             int bookingId =
                     Integer.parseInt(
@@ -957,29 +1029,23 @@ public class BookingController {
                     );
 
 
-            // =========================================
+            // ---------------------------------------------------------
             // CUSTOMER
-            // =========================================
+            // ---------------------------------------------------------
 
             Customer customer;
 
-
-            // If customer was passed from
-            // Customer Management, use it.
             if (selectedCustomer != null) {
 
                 customer = selectedCustomer;
 
             } else {
 
-                // Otherwise use ComboBox.
                 customer =
                         customerComboBox.getValue();
 
-
                 if (customer == null) {
 
-                    // PART 13 - WARNING
                     showWarning(
                             "Warning",
                             "Please select a customer."
@@ -990,17 +1056,15 @@ public class BookingController {
             }
 
 
-            // =========================================
+            // ---------------------------------------------------------
             // ROOM
-            // =========================================
+            // ---------------------------------------------------------
 
             Room room =
                     roomComboBox.getValue();
 
-
             if (room == null) {
 
-                // PART 13 - WARNING
                 showWarning(
                         "Warning",
                         "Please select a room."
@@ -1010,17 +1074,15 @@ public class BookingController {
             }
 
 
-            // =========================================
+            // ---------------------------------------------------------
             // CHECK-IN DATE
-            // =========================================
+            // ---------------------------------------------------------
 
             LocalDate checkIn =
                     checkInDatePicker.getValue();
 
-
             if (checkIn == null) {
 
-                // PART 13 - WARNING
                 showWarning(
                         "Warning",
                         "Please select check-in date."
@@ -1030,17 +1092,15 @@ public class BookingController {
             }
 
 
-            // =========================================
+            // ---------------------------------------------------------
             // CHECK-OUT DATE
-            // =========================================
+            // ---------------------------------------------------------
 
             LocalDate checkOut =
                     checkOutDatePicker.getValue();
 
-
             if (checkOut == null) {
 
-                // PART 13 - WARNING
                 showWarning(
                         "Warning",
                         "Please select check-out date."
@@ -1050,13 +1110,12 @@ public class BookingController {
             }
 
 
-            // =========================================
-            // CHECK DATE
-            // =========================================
+            // ---------------------------------------------------------
+            // DATE VALIDATION
+            // ---------------------------------------------------------
 
             if (!checkOut.isAfter(checkIn)) {
 
-                // PART 13 - ERROR
                 showError(
                         "Error",
                         "Check-out date must be after check-in date."
@@ -1066,13 +1125,12 @@ public class BookingController {
             }
 
 
-            // =========================================
+            // ---------------------------------------------------------
             // BOOKING TYPE
-            // =========================================
+            // ---------------------------------------------------------
 
             String bookingType =
                     "Regular";
-
 
             if (vipRadioButton != null
                     && vipRadioButton.isSelected()) {
@@ -1081,18 +1139,16 @@ public class BookingController {
             }
 
 
-            // =========================================
+            // ---------------------------------------------------------
             // EXTRA SERVICES
-            // =========================================
+            // ---------------------------------------------------------
 
             String extraServices =
                     "None";
 
-
             boolean breakfast =
                     breakfastCheckBox != null
                             && breakfastCheckBox.isSelected();
-
 
             boolean airportPickup =
                     airportPickupCheckBox != null
@@ -1117,9 +1173,9 @@ public class BookingController {
             }
 
 
-            // =========================================
+            // ---------------------------------------------------------
             // NUMBER OF GUESTS
-            // =========================================
+            // ---------------------------------------------------------
 
             int numberOfGuests = 1;
 
@@ -1131,12 +1187,41 @@ public class BookingController {
             }
 
 
-            // =========================================
-            // BOOKING OBJECT
-            // =========================================
+            // =========================================================
+            // IMPORTANT FIX FOR LAMBDA
+            // =========================================================
+            /*
+             * Variables used inside Platform.runLater()
+             * must be final or effectively final.
+             *
+             * Therefore we create final copies here.
+             */
 
-            Booking booking =
-                    new Booking(
+            final String finalBookingType =
+                    bookingType;
+
+            final String finalExtraServices =
+                    extraServices;
+
+            final int finalNumberOfGuests =
+                    numberOfGuests;
+
+
+            // =========================================================
+            // MULTITHREADING
+            // =========================================================
+
+            /*
+             * BookingService processes the booking
+             * using ExecutorService.
+             *
+             * Therefore the booking task is performed
+             * on a worker thread instead of directly
+             * on the JavaFX Application Thread.
+             */
+
+            Future<Booking> future =
+                    bookingService.createBookingAsync(
                             bookingId,
                             customer,
                             room,
@@ -1145,70 +1230,166 @@ public class BookingController {
                     );
 
 
-            // =========================================
-            // ADD TO SHARED LIST
-            // =========================================
+            // ---------------------------------------------------------
+            // WAIT FOR RESULT IN SEPARATE THREAD
+            // ---------------------------------------------------------
 
-            BookingData.bookingList.add(
-                    booking
-            );
+            Thread resultThread =
+                    new Thread(() -> {
 
+                        try {
 
-            // =========================================
-            // SUCCESS MESSAGE
-            // =========================================
-
-            showMessage(
-                    "Success",
-                    "Booking added successfully!\n\n"
-                            + "Booking Type: "
-                            + bookingType
-                            + "\n"
-                            + "Extra Services: "
-                            + extraServices
-                            + "\n"
-                            + "Number of Guests: "
-                            + numberOfGuests
-            );
+                            /*
+                             * Wait for BookingService to finish.
+                             */
+                            Booking booking =
+                                    future.get();
 
 
-            // =========================================
-            // CLEAR FORM
-            // =========================================
+                            /*
+                             * JavaFX controls must be modified
+                             * on the JavaFX Application Thread.
+                             */
 
-            checkInDatePicker.setValue(null);
+                            Platform.runLater(() -> {
 
-            checkOutDatePicker.setValue(null);
+                                if (booking != null) {
 
-            if (regularRadioButton != null) {
-                regularRadioButton.setSelected(true);
-            }
+                                    // -------------------------------------------------
+                                    // ADD BOOKING TO SHARED LIST
+                                    // -------------------------------------------------
 
-            if (breakfastCheckBox != null) {
-                breakfastCheckBox.setSelected(false);
-            }
-
-            if (airportPickupCheckBox != null) {
-                airportPickupCheckBox.setSelected(false);
-            }
+                                    BookingData.bookingList.add(
+                                            booking
+                                    );
 
 
-            // Reset guest count to 1.
-            if (guestSpinner != null
-                    && guestSpinner.getValueFactory() != null) {
+                                    // -------------------------------------------------
+                                    // SUCCESS MESSAGE
+                                    // -------------------------------------------------
 
-                guestSpinner.getValueFactory()
-                        .setValue(1);
-            }
+                                    showMessage(
+                                            "Success",
+                                            "Booking added successfully!\n\n"
+                                                    + "Booking Type: "
+                                                    + finalBookingType
+                                                    + "\n"
+                                                    + "Extra Services: "
+                                                    + finalExtraServices
+                                                    + "\n"
+                                                    + "Number of Guests: "
+                                                    + finalNumberOfGuests
+                                    );
 
 
-            // Update progress after clearing dates.
-            updateBookingProgress();
+                                    // -------------------------------------------------
+                                    // CLEAR DATE FIELDS
+                                    // -------------------------------------------------
+
+                                    checkInDatePicker.setValue(
+                                            null
+                                    );
+
+                                    checkOutDatePicker.setValue(
+                                            null
+                                    );
+
+
+                                    // -------------------------------------------------
+                                    // RESET BOOKING TYPE
+                                    // -------------------------------------------------
+
+                                    if (regularRadioButton != null) {
+
+                                        regularRadioButton.setSelected(
+                                                true
+                                        );
+                                    }
+
+
+                                    // -------------------------------------------------
+                                    // RESET BREAKFAST
+                                    // -------------------------------------------------
+
+                                    if (breakfastCheckBox != null) {
+
+                                        breakfastCheckBox.setSelected(
+                                                false
+                                        );
+                                    }
+
+
+                                    // -------------------------------------------------
+                                    // RESET AIRPORT PICKUP
+                                    // -------------------------------------------------
+
+                                    if (airportPickupCheckBox != null) {
+
+                                        airportPickupCheckBox.setSelected(
+                                                false
+                                        );
+                                    }
+
+
+                                    // -------------------------------------------------
+                                    // RESET GUEST SPINNER
+                                    // -------------------------------------------------
+
+                                    if (guestSpinner != null
+                                            && guestSpinner
+                                            .getValueFactory() != null) {
+
+                                        guestSpinner
+                                                .getValueFactory()
+                                                .setValue(1);
+                                    }
+
+
+                                    // -------------------------------------------------
+                                    // UPDATE PROGRESS
+                                    // -------------------------------------------------
+
+                                    updateBookingProgress();
+                                }
+                            });
+
+
+                        } catch (Exception e) {
+
+                            e.printStackTrace();
+
+                            /*
+                             * Show error on JavaFX Application Thread.
+                             */
+
+                            Platform.runLater(() -> {
+
+                                showError(
+                                        "Booking Error",
+                                        "Could not process the booking."
+                                );
+                            });
+                        }
+
+                    });
+
+
+            // ---------------------------------------------------------
+            // MAKE THREAD A DAEMON THREAD
+            // ---------------------------------------------------------
+
+            resultThread.setDaemon(true);
+
+
+            // ---------------------------------------------------------
+            // START THREAD
+            // ---------------------------------------------------------
+
+            resultThread.start();
 
 
         } catch (NumberFormatException e) {
 
-            // PART 13 - ERROR
             showError(
                     "Error",
                     "Please enter a valid Booking ID."
@@ -1218,7 +1399,6 @@ public class BookingController {
 
             e.printStackTrace();
 
-            // PART 13 - ERROR
             showError(
                     "Error",
                     "Something went wrong while adding the booking."
@@ -1227,9 +1407,9 @@ public class BookingController {
     }
 
 
-    // =========================================
+    // =========================================================
     // UPDATE BOOKING
-    // =========================================
+    // =========================================================
 
     @FXML
     private void updateBooking() {
@@ -1240,9 +1420,12 @@ public class BookingController {
                         .getSelectedItem();
 
 
+        // ---------------------------------------------------------
+        // CHECK SELECTION
+        // ---------------------------------------------------------
+
         if (selectedBooking == null) {
 
-            // PART 13 - WARNING
             showWarning(
                     "Warning",
                     "Please select a booking first."
@@ -1252,9 +1435,9 @@ public class BookingController {
         }
 
 
-        // -----------------------------------------
-        // New Check-In Date
-        // -----------------------------------------
+        // ---------------------------------------------------------
+        // NEW CHECK-IN DATE
+        // ---------------------------------------------------------
 
         TextInputDialog checkInDialog =
                 new TextInputDialog(
@@ -1263,34 +1446,29 @@ public class BookingController {
                                 .toString()
                 );
 
-
         checkInDialog.setTitle(
                 "Update Booking"
         );
-
 
         checkInDialog.setHeaderText(
                 "Update Check-In Date"
         );
 
-
         checkInDialog.setContentText(
                 "YYYY-MM-DD:"
         );
 
-
         Optional<String> checkInResult =
                 checkInDialog.showAndWait();
-
 
         if (checkInResult.isEmpty()) {
             return;
         }
 
 
-        // -----------------------------------------
-        // New Check-Out Date
-        // -----------------------------------------
+        // ---------------------------------------------------------
+        // NEW CHECK-OUT DATE
+        // ---------------------------------------------------------
 
         TextInputDialog checkOutDialog =
                 new TextInputDialog(
@@ -1299,25 +1477,20 @@ public class BookingController {
                                 .toString()
                 );
 
-
         checkOutDialog.setTitle(
                 "Update Booking"
         );
-
 
         checkOutDialog.setHeaderText(
                 "Update Check-Out Date"
         );
 
-
         checkOutDialog.setContentText(
                 "YYYY-MM-DD:"
         );
 
-
         Optional<String> checkOutResult =
                 checkOutDialog.showAndWait();
-
 
         if (checkOutResult.isEmpty()) {
             return;
@@ -1326,11 +1499,14 @@ public class BookingController {
 
         try {
 
+            // ---------------------------------------------------------
+            // CONVERT DATES
+            // ---------------------------------------------------------
+
             LocalDate newCheckIn =
                     LocalDate.parse(
                             checkInResult.get()
                     );
-
 
             LocalDate newCheckOut =
                     LocalDate.parse(
@@ -1338,9 +1514,12 @@ public class BookingController {
                     );
 
 
+            // ---------------------------------------------------------
+            // VALIDATE DATES
+            // ---------------------------------------------------------
+
             if (!newCheckOut.isAfter(newCheckIn)) {
 
-                // PART 13 - ERROR
                 showError(
                         "Error",
                         "Check-out date must be after check-in date."
@@ -1350,20 +1529,30 @@ public class BookingController {
             }
 
 
+            // ---------------------------------------------------------
+            // UPDATE BOOKING
+            // ---------------------------------------------------------
+
             selectedBooking.setCheckIn(
                     newCheckIn
             );
-
 
             selectedBooking.setCheckOut(
                     newCheckOut
             );
 
 
+            // ---------------------------------------------------------
+            // REFRESH TABLE
+            // ---------------------------------------------------------
+
             bookingTable.refresh();
 
 
-            // Existing INFORMATION alert
+            // ---------------------------------------------------------
+            // SUCCESS MESSAGE
+            // ---------------------------------------------------------
+
             showMessage(
                     "Success",
                     "Booking updated successfully!"
@@ -1372,7 +1561,6 @@ public class BookingController {
 
         } catch (Exception e) {
 
-            // PART 13 - ERROR
             showError(
                     "Error",
                     "Please enter dates in YYYY-MM-DD format."
@@ -1381,9 +1569,9 @@ public class BookingController {
     }
 
 
-    // =========================================
+    // =========================================================
     // DELETE BOOKING
-    // =========================================
+    // =========================================================
 
     @FXML
     private void deleteBooking() {
@@ -1394,9 +1582,12 @@ public class BookingController {
                         .getSelectedItem();
 
 
+        // ---------------------------------------------------------
+        // CHECK SELECTION
+        // ---------------------------------------------------------
+
         if (selectedBooking == null) {
 
-            // PART 13 - WARNING
             showWarning(
                     "Warning",
                     "Please select a booking first."
@@ -1406,27 +1597,24 @@ public class BookingController {
         }
 
 
-        // =========================================
+        // ---------------------------------------------------------
         // CONFIRMATION ALERT
-        // =========================================
+        // ---------------------------------------------------------
 
         Alert confirmation =
                 new Alert(
                         Alert.AlertType.CONFIRMATION
                 );
 
-
         confirmation.setTitle(
                 "Delete Booking"
         );
-
 
         confirmation.setHeaderText(
                 "Delete Booking "
                         + selectedBooking.getBookingId()
                         + "?"
         );
-
 
         confirmation.setContentText(
                 "Are you sure you want to delete this booking?"
@@ -1437,16 +1625,18 @@ public class BookingController {
                 confirmation.showAndWait();
 
 
+        // ---------------------------------------------------------
+        // DELETE
+        // ---------------------------------------------------------
+
         if (result.isPresent()
                 && result.get() == ButtonType.OK) {
-
 
             BookingData.bookingList.remove(
                     selectedBooking
             );
 
 
-            // Existing INFORMATION alert
             showMessage(
                     "Success",
                     "Booking deleted successfully!"
@@ -1455,9 +1645,9 @@ public class BookingController {
     }
 
 
-    // =========================================
+    // =========================================================
     // BACK TO MAIN
-    // =========================================
+    // =========================================================
 
     @FXML
     private void backToMain() {
@@ -1467,25 +1657,22 @@ public class BookingController {
                         .getScene()
                         .getWindow();
 
-
         stage.close();
     }
 
 
-    // =========================================
+    // =========================================================
     // COMMON INFORMATION MESSAGE
-    // =========================================
+    // =========================================================
 
     private void showMessage(
             String title,
-            String message
-    ) {
+            String message) {
 
         Alert alert =
                 new Alert(
                         Alert.AlertType.INFORMATION
                 );
-
 
         alert.setTitle(title);
 
@@ -1494,5 +1681,20 @@ public class BookingController {
         alert.setContentText(message);
 
         alert.showAndWait();
+    }
+
+
+    // =========================================================
+    // SHUTDOWN BOOKING SERVICE
+    // =========================================================
+
+    /*
+     * Stops the ExecutorService when the controller
+     * is no longer needed.
+     */
+
+    public void shutdownBookingService() {
+
+        bookingService.shutdown();
     }
 }
