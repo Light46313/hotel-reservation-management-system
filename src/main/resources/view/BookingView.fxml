@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
@@ -7,11 +8,13 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -19,74 +22,435 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="TOP_CENTER" maxHeight="700.0" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="800.0" spacing="15.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hotel.controller.BookingController">
-   <children>
-      <Label text="BOOKING MANAGEMENT">
-         <font>
-            <Font size="28.0" />
-         </font>
-      </Label>
-      <Label fx:id="selectedCustomerLabel" text="No customer selected">
-         <font>
-            <Font size="18.0" />
-         </font>
-      </Label>
-      <ProgressBar fx:id="bookingProgressBar" prefWidth="200.0" progress="0.0" />
-      <Label fx:id="roomPriceLabel" text="Room Price Range" />
-      <Slider fx:id="roomPriceSlider" max="5000.0" min="1000.0" value="2500.0" />
-      <Label text="Number of Guests" />
-      <Spinner fx:id="guestSpinner" />
-      <GridPane>
-        <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-        </columnConstraints>
-        <rowConstraints>
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-        </rowConstraints>
-         <children>
-            <Label text="Customer:" />
-            <ComboBox fx:id="customerComboBox" prefWidth="150.0" GridPane.columnIndex="1" />
-            <Label text="Room:" GridPane.rowIndex="1" />
-            <ComboBox fx:id="roomComboBox" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Label text="Check-in: " GridPane.rowIndex="2" />
-            <DatePicker fx:id="checkInDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <Label text="Check-out:" GridPane.rowIndex="3" />
-            <Label text="Booking Type:" GridPane.rowIndex="4" />
-            <Label text="Extra Services:" GridPane.rowIndex="5" />
-            <DatePicker fx:id="checkOutDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <RadioButton fx:id="regularRadioButton" mnemonicParsing="false" text="Regular" GridPane.columnIndex="1" GridPane.rowIndex="4">
-               <toggleGroup>
-                  <ToggleGroup fx:id="bookingTypeGroup" />
-               </toggleGroup>
-            </RadioButton>
-            <RadioButton fx:id="vipRadioButton" mnemonicParsing="false" text="VIP" toggleGroup="$bookingTypeGroup" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-            <CheckBox fx:id="breakfastCheckBox" mnemonicParsing="false" text="Breakfast" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-            <CheckBox fx:id="airportPickupCheckBox" mnemonicParsing="false" text="Airport Pickup" GridPane.columnIndex="2" GridPane.rowIndex="5" />
-         </children>
-      </GridPane>
-      <TableView fx:id="bookingTable" prefHeight="250.0" prefWidth="680.0">
-        <columns>
-          <TableColumn fx:id="bookingIdColumn" minWidth="80.0" prefWidth="75.0" text="Booking ID" />
-          <TableColumn fx:id="customerColumn" minWidth="150.0" prefWidth="75.0" text="Customer" />
-            <TableColumn fx:id="roomColumn" minWidth="150.0" prefWidth="75.0" text="Room" />
-            <TableColumn fx:id="checkInColumn" minWidth="150.0" prefWidth="75.0" text="Check In" />
-            <TableColumn fx:id="checkOutColumn" minWidth="150.0" prefWidth="75.0" text="Check Out" />
-        </columns>
-      </TableView>
-      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
-         <children>
-            <Button mnemonicParsing="false" onAction="#addBooking" prefHeight="50.0" prefWidth="150.0" text="Add Booking" />
-            <Button minHeight="50.0" minWidth="150.0" mnemonicParsing="false" onAction="#updateBooking" text="Update" />
-            <Button minHeight="50.0" minWidth="150.0" mnemonicParsing="false" onAction="#deleteBooking" text="Delete" />
-            <Button minHeight="50.0" minWidth="150.0" mnemonicParsing="false" onAction="#backToMain" text="Back" />
-         </children>
-      </HBox>
-   </children>
-</VBox>
+<BorderPane
+        xmlns="http://javafx.com/javafx/26"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="hotel.controller.BookingController"
+        prefWidth="900.0"
+        prefHeight="700.0"
+        minWidth="800.0"
+        minHeight="600.0">
+
+
+    <!-- ==================== TOP AREA ==================== -->
+
+    <top>
+
+        <VBox
+                alignment="CENTER"
+                spacing="8.0">
+
+            <padding>
+                <Insets
+                        top="15.0"
+                        right="20.0"
+                        bottom="10.0"
+                        left="20.0"/>
+            </padding>
+
+
+            <!-- TITLE -->
+
+            <Label
+                    alignment="CENTER"
+                    text="BOOKING MANAGEMENT">
+
+                <font>
+                    <Font
+                            name="System Bold"
+                            size="28.0"/>
+                </font>
+
+            </Label>
+
+
+            <!-- SELECTED CUSTOMER -->
+
+            <Label
+                    fx:id="selectedCustomerLabel"
+                    alignment="CENTER"
+                    text="No customer selected">
+
+                <font>
+                    <Font size="18.0"/>
+                </font>
+
+            </Label>
+
+
+            <!-- BOOKING PROGRESS -->
+
+            <ProgressBar
+                    fx:id="bookingProgressBar"
+                    prefWidth="300.0"
+                    progress="0.0"/>
+
+        </VBox>
+
+    </top>
+
+
+    <!-- ==================== CENTER AREA ==================== -->
+
+    <center>
+
+        <ScrollPane
+                fitToWidth="true"
+                fitToHeight="true"
+                hbarPolicy="NEVER"
+                vbarPolicy="AS_NEEDED">
+
+            <content>
+
+                <VBox
+                        spacing="15.0">
+
+                    <padding>
+                        <Insets
+                                top="10.0"
+                                right="25.0"
+                                bottom="10.0"
+                                left="25.0"/>
+                    </padding>
+
+
+                    <!-- ==================== ROOM PRICE RANGE ==================== -->
+
+                    <HBox
+                            alignment="CENTER"
+                            spacing="15.0">
+
+                        <Label
+                                fx:id="roomPriceLabel"
+                                text="Room Price Range"/>
+
+                        <Slider
+                                fx:id="roomPriceSlider"
+                                min="1000.0"
+                                max="5000.0"
+                                value="2500.0"
+                                prefWidth="350.0"
+                                HBox.hgrow="ALWAYS"/>
+
+                    </HBox>
+
+
+                    <!-- ==================== NUMBER OF GUESTS ==================== -->
+
+                    <HBox
+                            alignment="CENTER"
+                            spacing="15.0">
+
+                        <Label
+                                text="Number of Guests"/>
+
+                        <Spinner
+                                fx:id="guestSpinner"
+                                prefWidth="100.0"/>
+
+                    </HBox>
+
+
+                    <!-- ==================== BOOKING FORM ==================== -->
+
+                    <GridPane
+                            hgap="15.0"
+                            vgap="12.0">
+
+                        <padding>
+                            <Insets
+                                    top="5.0"
+                                    right="10.0"
+                                    bottom="5.0"
+                                    left="10.0"/>
+                        </padding>
+
+
+                        <columnConstraints>
+
+                            <ColumnConstraints
+                                    halignment="RIGHT"
+                                    minWidth="120.0"
+                                    prefWidth="130.0"/>
+
+                            <ColumnConstraints
+                                    hgrow="SOMETIMES"
+                                    minWidth="180.0"
+                                    prefWidth="220.0"/>
+
+                            <ColumnConstraints
+                                    hgrow="SOMETIMES"
+                                    minWidth="150.0"
+                                    prefWidth="180.0"/>
+
+                        </columnConstraints>
+
+
+                        <rowConstraints>
+
+                            <RowConstraints
+                                    minHeight="35.0"
+                                    prefHeight="40.0"/>
+
+                            <RowConstraints
+                                    minHeight="35.0"
+                                    prefHeight="40.0"/>
+
+                            <RowConstraints
+                                    minHeight="35.0"
+                                    prefHeight="40.0"/>
+
+                            <RowConstraints
+                                    minHeight="35.0"
+                                    prefHeight="40.0"/>
+
+                            <RowConstraints
+                                    minHeight="35.0"
+                                    prefHeight="40.0"/>
+
+                            <RowConstraints
+                                    minHeight="35.0"
+                                    prefHeight="40.0"/>
+
+                        </rowConstraints>
+
+
+                        <!-- CUSTOMER -->
+
+                        <Label
+                                text="Customer:"
+                                GridPane.rowIndex="0"/>
+
+                        <ComboBox
+                                fx:id="customerComboBox"
+                                prefWidth="220.0"
+                                GridPane.columnIndex="1"
+                                GridPane.rowIndex="0"/>
+
+
+                        <!-- ROOM -->
+
+                        <Label
+                                text="Room:"
+                                GridPane.rowIndex="1"/>
+
+                        <ComboBox
+                                fx:id="roomComboBox"
+                                prefWidth="220.0"
+                                GridPane.columnIndex="1"
+                                GridPane.rowIndex="1"/>
+
+
+                        <!-- CHECK IN -->
+
+                        <Label
+                                text="Check-in:"
+                                GridPane.rowIndex="2"/>
+
+                        <DatePicker
+                                fx:id="checkInDatePicker"
+                                prefWidth="220.0"
+                                GridPane.columnIndex="1"
+                                GridPane.rowIndex="2"/>
+
+
+                        <!-- CHECK OUT -->
+
+                        <Label
+                                text="Check-out:"
+                                GridPane.rowIndex="3"/>
+
+                        <DatePicker
+                                fx:id="checkOutDatePicker"
+                                prefWidth="220.0"
+                                GridPane.columnIndex="1"
+                                GridPane.rowIndex="3"/>
+
+
+                        <!-- BOOKING TYPE -->
+
+                        <Label
+                                text="Booking Type:"
+                                GridPane.rowIndex="4"/>
+
+                        <HBox
+                                alignment="CENTER_LEFT"
+                                spacing="20.0"
+                                GridPane.columnIndex="1"
+                                GridPane.rowIndex="4">
+
+                            <RadioButton
+                                    fx:id="regularRadioButton"
+                                    mnemonicParsing="false"
+                                    text="Regular">
+
+                                <toggleGroup>
+                                    <ToggleGroup
+                                            fx:id="bookingTypeGroup"/>
+                                </toggleGroup>
+
+                            </RadioButton>
+
+
+                            <RadioButton
+                                    fx:id="vipRadioButton"
+                                    mnemonicParsing="false"
+                                    text="VIP"
+                                    toggleGroup="$bookingTypeGroup"/>
+
+                        </HBox>
+
+
+                        <!-- EXTRA SERVICES -->
+
+                        <Label
+                                text="Extra Services:"
+                                GridPane.rowIndex="5"/>
+
+                        <HBox
+                                alignment="CENTER_LEFT"
+                                spacing="20.0"
+                                GridPane.columnIndex="1"
+                                GridPane.rowIndex="5">
+
+                            <CheckBox
+                                    fx:id="breakfastCheckBox"
+                                    mnemonicParsing="false"
+                                    text="Breakfast"/>
+
+                            <CheckBox
+                                    fx:id="airportPickupCheckBox"
+                                    mnemonicParsing="false"
+                                    text="Airport Pickup"/>
+
+                        </HBox>
+
+                    </GridPane>
+
+
+                    <!-- ==================== BOOKING TABLE ==================== -->
+
+                    <Label
+                            text="Booking Records">
+
+                        <font>
+                            <Font
+                                    name="System Bold"
+                                    size="16.0"/>
+                        </font>
+
+                    </Label>
+
+
+                    <TableView
+                            fx:id="bookingTable"
+                            prefHeight="250.0"
+                            minHeight="200.0">
+
+                        <columns>
+
+                            <TableColumn
+                                    fx:id="bookingIdColumn"
+                                    minWidth="80.0"
+                                    prefWidth="100.0"
+                                    text="Booking ID"/>
+
+                            <TableColumn
+                                    fx:id="customerColumn"
+                                    minWidth="150.0"
+                                    prefWidth="180.0"
+                                    text="Customer"/>
+
+                            <TableColumn
+                                    fx:id="roomColumn"
+                                    minWidth="130.0"
+                                    prefWidth="160.0"
+                                    text="Room"/>
+
+                            <TableColumn
+                                    fx:id="checkInColumn"
+                                    minWidth="130.0"
+                                    prefWidth="160.0"
+                                    text="Check In"/>
+
+                            <TableColumn
+                                    fx:id="checkOutColumn"
+                                    minWidth="130.0"
+                                    prefWidth="160.0"
+                                    text="Check Out"/>
+
+                        </columns>
+
+                    </TableView>
+
+                </VBox>
+
+            </content>
+
+        </ScrollPane>
+
+    </center>
+
+
+    <!-- ==================== BOTTOM AREA ==================== -->
+
+    <bottom>
+
+        <HBox
+                alignment="CENTER"
+                spacing="15.0"
+                prefHeight="70.0">
+
+            <padding>
+                <Insets
+                        top="10.0"
+                        right="20.0"
+                        bottom="15.0"
+                        left="20.0"/>
+            </padding>
+
+
+            <!-- ADD BOOKING -->
+
+            <Button
+                    mnemonicParsing="false"
+                    onAction="#addBooking"
+                    prefHeight="40.0"
+                    prefWidth="140.0"
+                    text="Add Booking"/>
+
+
+            <!-- UPDATE -->
+
+            <Button
+                    mnemonicParsing="false"
+                    onAction="#updateBooking"
+                    prefHeight="40.0"
+                    prefWidth="120.0"
+                    text="Update"/>
+
+
+            <!-- DELETE -->
+
+            <Button
+                    mnemonicParsing="false"
+                    onAction="#deleteBooking"
+                    prefHeight="40.0"
+                    prefWidth="120.0"
+                    text="Delete"/>
+
+
+            <!-- BACK -->
+
+            <Button
+                    mnemonicParsing="false"
+                    onAction="#backToMain"
+                    prefHeight="40.0"
+                    prefWidth="100.0"
+                    text="Back"/>
+
+        </HBox>
+
+    </bottom>
+
+</BorderPane>

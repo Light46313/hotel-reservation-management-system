@@ -1,51 +1,148 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="500.0" minWidth="700.0" prefHeight="500.0" prefWidth="700.0" spacing="15.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hotel.controller.BookingHistoryController">
+<BorderPane
+        xmlns="http://javafx.com/javafx/26"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="hotel.controller.BookingHistoryController"
+        prefWidth="900.0"
+        prefHeight="600.0"
+        minWidth="700.0"
+        minHeight="500.0">
 
-    <children>
 
-        <Label text="BOOKING HISTORY">
-            <font>
-                <Font size="28.0" />
-            </font>
-        </Label>
+    <!-- ==================== TOP AREA ==================== -->
 
-        <TableView fx:id="bookingHistoryTable" prefHeight="250.0" prefWidth="680.0">
+    <top>
 
-            <columns>
+        <VBox
+                alignment="CENTER"
+                spacing="10.0">
 
-                <TableColumn fx:id="bookingIdColumn" minWidth="80.0" prefWidth="100.0" text="Booking ID" />
+            <padding>
 
-                <TableColumn fx:id="customerColumn" minWidth="150.0" prefWidth="150.0" text="Customer" />
+                <Insets
+                        top="15.0"
+                        right="20.0"
+                        bottom="15.0"
+                        left="20.0"/>
 
-                <TableColumn fx:id="roomColumn" minWidth="150.0" prefWidth="150.0" text="Room" />
+            </padding>
 
-                <TableColumn fx:id="checkInColumn" minWidth="150.0" prefWidth="150.0" text="Check In" />
+            <Label
+                    alignment="CENTER"
+                    text="BOOKING HISTORY">
 
-                <TableColumn fx:id="checkOutColumn" minWidth="150.0" prefWidth="150.0" text="Check Out" />
+                <font>
+                    <Font
+                            name="System Bold"
+                            size="28.0"/>
+                </font>
 
-            </columns>
+            </Label>
 
-        </TableView>
+        </VBox>
 
-        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+    </top>
 
-            <children>
 
-                <Button minHeight="50.0" minWidth="150.0" mnemonicParsing="false" onAction="#backToMain" text="Back" />
+    <!-- ==================== CENTER AREA ==================== -->
 
-            </children>
+    <center>
+
+        <ScrollPane
+                fitToWidth="true"
+                fitToHeight="true"
+                hbarPolicy="NEVER"
+                vbarPolicy="AS_NEEDED">
+
+            <content>
+
+                <TableView
+                        fx:id="bookingHistoryTable"
+                        prefHeight="450.0"
+                        prefWidth="850.0">
+
+                    <columns>
+
+                        <TableColumn
+                                fx:id="bookingIdColumn"
+                                minWidth="100.0"
+                                prefWidth="120.0"
+                                text="Booking ID"/>
+
+                        <TableColumn
+                                fx:id="customerColumn"
+                                minWidth="150.0"
+                                prefWidth="180.0"
+                                text="Customer"/>
+
+                        <TableColumn
+                                fx:id="roomColumn"
+                                minWidth="150.0"
+                                prefWidth="180.0"
+                                text="Room"/>
+
+                        <TableColumn
+                                fx:id="checkInColumn"
+                                minWidth="150.0"
+                                prefWidth="180.0"
+                                text="Check In"/>
+
+                        <TableColumn
+                                fx:id="checkOutColumn"
+                                minWidth="150.0"
+                                prefWidth="180.0"
+                                text="Check Out"/>
+
+                    </columns>
+
+                </TableView>
+
+            </content>
+
+        </ScrollPane>
+
+    </center>
+
+
+    <!-- ==================== BOTTOM AREA ==================== -->
+
+    <bottom>
+
+        <HBox
+                alignment="CENTER"
+                prefHeight="70.0">
+
+            <padding>
+
+                <Insets
+                        top="10.0"
+                        right="20.0"
+                        bottom="15.0"
+                        left="20.0"/>
+
+            </padding>
+
+            <Button
+                    minHeight="40.0"
+                    minWidth="120.0"
+                    mnemonicParsing="false"
+                    onAction="#backToMain"
+                    text="Back"/>
 
         </HBox>
 
-    </children>
+    </bottom>
 
-</VBox>
+</BorderPane>

@@ -1,21 +1,14 @@
 package hotel.controller;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 public class MainController {
-
-    // =========================
-    // EVENT STATUS LABEL
-    // =========================
-
-    @FXML
-    private Label eventStatusLabel;
-
 
     // =========================
     // ROOM MANAGEMENT
@@ -180,7 +173,7 @@ public class MainController {
     @FXML
     private void newAction() {
 
-        // File -> New will open
+        // File -> New opens
         // the Booking Management window.
 
         openBooking();
@@ -195,8 +188,8 @@ public class MainController {
     private void openAction() {
 
         // For now, Open shows a message.
-        // We can give this menu item
-        // another function later.
+        // This can be connected to a file/database
+        // later if required.
 
         showMessage(
                 "Open",
@@ -206,29 +199,88 @@ public class MainController {
 
 
     // =========================
-    // EXIT
+    // REFRESH DATA
+    // =========================
+
+    @FXML
+    private void refreshData() {
+
+        /*
+         * The dashboard does not currently contain
+         * data that needs to be reloaded directly.
+         *
+         * Room, customer and booking data are handled
+         * by their respective management screens.
+         */
+
+        showMessage(
+                "Refresh Data",
+                "Dashboard data has been refreshed successfully."
+        );
+    }
+
+
+    // =========================
+    // LOGOUT
+    // =========================
+
+    @FXML
+    private void logout(ActionEvent event) {
+
+        try {
+
+            // Get the current Main Dashboard window
+            Stage currentStage =
+                    (Stage) ((Node) event.getSource())
+                            .getScene()
+                            .getWindow();
+
+            // Load Login page
+            FXMLLoader loader = new FXMLLoader(
+                    MainController.class.getResource(
+                            "/view/LoginView.fxml"
+                    )
+            );
+
+            Scene loginScene =
+                    new Scene(loader.load());
+
+            // Close current dashboard
+            currentStage.close();
+
+            // Create Login window
+            Stage loginStage = new Stage();
+
+            loginStage.setTitle(
+                    "Hotel Reservation and Management System"
+            );
+
+            loginStage.setScene(loginScene);
+
+            loginStage.setResizable(false);
+
+            loginStage.show();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            showMessage(
+                    "Logout Error",
+                    "Could not return to the Login page."
+            );
+        }
+    }
+
+
+    // =========================
+    // EXIT APPLICATION
     // =========================
 
     @FXML
     private void exitApplication() {
 
         System.exit(0);
-    }
-
-
-    // =========================
-    // TEST EVENT
-    // =========================
-
-    @FXML
-    private void handleTestEvent() {
-
-        if (eventStatusLabel != null) {
-
-            eventStatusLabel.setText(
-                    "Button Clicked!"
-            );
-        }
     }
 
 
@@ -247,7 +299,9 @@ public class MainController {
                 );
 
         alert.setTitle(title);
+
         alert.setHeaderText(null);
+
         alert.setContentText(message);
 
         alert.showAndWait();

@@ -1,84 +1,162 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" spacing="10.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hotel.controller.LoginController">
+<StackPane
+        xmlns="http://javafx.com/javafx/26"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="hotel.controller.LoginController"
+        prefWidth="600.0"
+        prefHeight="450.0"
+        minWidth="500.0"
+        minHeight="400.0">
 
-   <children>
+   <!-- ==================== LOGIN FORM ==================== -->
 
-      <!-- Title -->
-      <Label alignment="CENTER" text="HOTEL MANAGEMENT LOGIN">
+   <VBox
+           alignment="CENTER"
+           spacing="15.0"
+           maxWidth="500.0">
+
+      <padding>
+
+         <Insets
+                 top="30.0"
+                 right="30.0"
+                 bottom="30.0"
+                 left="30.0"/>
+
+      </padding>
+
+
+      <!-- ==================== TITLE ==================== -->
+
+      <Label
+              alignment="CENTER"
+              text="HOTEL MANAGEMENT LOGIN">
+
          <font>
-            <Font size="24.0" />
+            <Font
+                    name="System Bold"
+                    size="26.0"/>
          </font>
+
       </Label>
 
-      <!-- Username -->
-      <HBox alignment="CENTER" prefHeight="40.0" prefWidth="400.0" spacing="10.0">
 
-         <children>
+      <!-- ==================== USERNAME ==================== -->
 
-            <Label alignment="CENTER_RIGHT" prefWidth="100.0" text="Username:">
-               <font>
-                  <Font size="18.0" />
-               </font>
-            </Label>
+      <HBox
+              alignment="CENTER"
+              spacing="10.0"
+              maxWidth="400.0">
 
-            <TextField fx:id="usernameField" prefHeight="30.0" prefWidth="220.0" promptText="Enter username" />
+         <Label
+                 alignment="CENTER_RIGHT"
+                 prefWidth="110.0"
+                 text="Username:">
 
-         </children>
+            <font>
+               <Font size="18.0"/>
+            </font>
+
+         </Label>
+
+
+         <TextField
+                 fx:id="usernameField"
+                 prefHeight="35.0"
+                 prefWidth="240.0"
+                 promptText="Enter username"/>
+
       </HBox>
 
-      <!-- Password -->
-      <HBox alignment="CENTER" prefHeight="40.0" prefWidth="400.0" spacing="10.0">
 
-         <children>
+      <!-- ==================== PASSWORD ==================== -->
 
-            <Label alignment="CENTER_RIGHT" prefWidth="100.0" text="Password:">
-               <font>
-                  <Font size="18.0" />
-               </font>
-            </Label>
+      <HBox
+              alignment="CENTER"
+              spacing="10.0"
+              maxWidth="400.0">
 
-            <PasswordField fx:id="passwordField" prefHeight="30.0" prefWidth="220.0" promptText="Enter password" />
+         <Label
+                 alignment="CENTER_RIGHT"
+                 prefWidth="110.0"
+                 text="Password:">
 
-         </children>
+            <font>
+               <Font size="18.0"/>
+            </font>
+
+         </Label>
+
+
+         <PasswordField
+                 fx:id="passwordField"
+                 prefHeight="35.0"
+                 prefWidth="240.0"
+                 promptText="Enter password"/>
+
       </HBox>
 
-      <!-- Show Password -->
-      <CheckBox fx:id="showPasswordCheckBox" alignment="CENTER" mnemonicParsing="false" onAction="#togglePasswordVisibility" text="Show Password">
+
+      <!-- ==================== SHOW PASSWORD ==================== -->
+
+      <CheckBox
+              fx:id="showPasswordCheckBox"
+              mnemonicParsing="false"
+              onAction="#togglePasswordVisibility"
+              text="Show Password">
 
          <font>
-            <Font size="14.0" />
+            <Font size="14.0"/>
          </font>
 
       </CheckBox>
 
-      <!-- Login Button -->
-      <Button fx:id="loginButton" alignment="CENTER" mnemonicParsing="false" onAction="#login" prefHeight="35.0" prefWidth="120.0" text="Login">
+
+      <!-- ==================== LOGIN BUTTON ==================== -->
+
+      <Button
+              fx:id="loginButton"
+              mnemonicParsing="false"
+              onAction="#login"
+              prefHeight="40.0"
+              prefWidth="140.0"
+              text="Login">
 
          <font>
-            <Font size="14.0" />
+            <Font size="15.0"/>
          </font>
 
       </Button>
 
-      <!-- Change Username / Password -->
-      <Button fx:id="changePasswordButton" alignment="CENTER" mnemonicParsing="false" onAction="#changeCredentials" prefHeight="35.0" prefWidth="223.0" text="Change Username / Password">
+
+      <!-- ==================== CHANGE CREDENTIALS ==================== -->
+
+      <Button
+              fx:id="changePasswordButton"
+              mnemonicParsing="false"
+              onAction="#changeCredentials"
+              prefHeight="40.0"
+              prefWidth="240.0"
+              text="Change Username / Password">
 
          <font>
-            <Font size="14.0" />
+            <Font size="14.0"/>
          </font>
 
       </Button>
 
-   </children>
+   </VBox>
 
-</VBox>
+</StackPane>
