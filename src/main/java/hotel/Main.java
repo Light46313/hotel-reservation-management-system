@@ -17,9 +17,15 @@ public class Main extends Application {
 
         Scene scene = new Scene(loader.load());
 
-        stage.setTitle("Hotel Reservation and Management System");
+        stage.setTitle(
+                "Hotel Reservation and Management System"
+        );
+
         stage.setScene(scene);
-        stage.setResizable(false);
+
+        // Allow the Main Dashboard window to be resized
+        stage.setResizable(true);
+
         stage.show();
     }
 

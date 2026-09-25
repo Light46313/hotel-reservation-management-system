@@ -6,9 +6,69 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
 public class MainController {
+
+    // =========================
+    // RESPONSIVE BUTTONS
+    // =========================
+
+    @FXML
+    private Button refreshDataButton;
+
+    @FXML
+    private Button logoutButton;
+
+
+    // =========================
+    // INITIALIZE
+    // =========================
+
+    @FXML
+    private void initialize() {
+
+        // Make Refresh Data button responsive
+        refreshDataButton.sceneProperty().addListener(
+                (observable, oldScene, newScene) -> {
+
+                    if (newScene != null) {
+
+                        // Width = 15% of window width
+                        refreshDataButton.prefWidthProperty().bind(
+                                newScene.widthProperty().multiply(0.15)
+                        );
+
+                        // Height = 8% of window height
+                        refreshDataButton.prefHeightProperty().bind(
+                                newScene.heightProperty().multiply(0.08)
+                        );
+                    }
+                }
+        );
+
+
+        // Make Logout button responsive
+        logoutButton.sceneProperty().addListener(
+                (observable, oldScene, newScene) -> {
+
+                    if (newScene != null) {
+
+                        // Width = 12% of window width
+                        logoutButton.prefWidthProperty().bind(
+                                newScene.widthProperty().multiply(0.12)
+                        );
+
+                        // Height = 8% of window height
+                        logoutButton.prefHeightProperty().bind(
+                                newScene.heightProperty().multiply(0.08)
+                        );
+                    }
+                }
+        );
+    }
+
 
     // =========================
     // ROOM MANAGEMENT
@@ -32,8 +92,8 @@ public class MainController {
             stage.setTitle("Room Management");
             stage.setScene(scene);
 
-            stage.setWidth(700);
-            stage.setHeight(500);
+            stage.setWidth(900);
+            stage.setHeight(600);
 
             stage.show();
 
@@ -71,8 +131,8 @@ public class MainController {
             stage.setTitle("Customer Management");
             stage.setScene(scene);
 
-            stage.setWidth(700);
-            stage.setHeight(500);
+            stage.setWidth(900);
+            stage.setHeight(650);
 
             stage.show();
 
@@ -110,8 +170,8 @@ public class MainController {
             stage.setTitle("Booking Management");
             stage.setScene(scene);
 
-            stage.setWidth(800);
-            stage.setHeight(550);
+            stage.setWidth(900);
+            stage.setHeight(700);
 
             stage.show();
 
@@ -149,8 +209,8 @@ public class MainController {
             stage.setTitle("Booking History");
             stage.setScene(scene);
 
-            stage.setWidth(800);
-            stage.setHeight(500);
+            stage.setWidth(900);
+            stage.setHeight(600);
 
             stage.show();
 
@@ -173,9 +233,6 @@ public class MainController {
     @FXML
     private void newAction() {
 
-        // File -> New opens
-        // the Booking Management window.
-
         openBooking();
     }
 
@@ -186,10 +243,6 @@ public class MainController {
 
     @FXML
     private void openAction() {
-
-        // For now, Open shows a message.
-        // This can be connected to a file/database
-        // later if required.
 
         showMessage(
                 "Open",
@@ -204,14 +257,6 @@ public class MainController {
 
     @FXML
     private void refreshData() {
-
-        /*
-         * The dashboard does not currently contain
-         * data that needs to be reloaded directly.
-         *
-         * Room, customer and booking data are handled
-         * by their respective management screens.
-         */
 
         showMessage(
                 "Refresh Data",
@@ -229,11 +274,12 @@ public class MainController {
 
         try {
 
-            // Get the current Main Dashboard window
+            // Get current dashboard window
             Stage currentStage =
                     (Stage) ((Node) event.getSource())
                             .getScene()
                             .getWindow();
+
 
             // Load Login page
             FXMLLoader loader = new FXMLLoader(
@@ -245,8 +291,10 @@ public class MainController {
             Scene loginScene =
                     new Scene(loader.load());
 
-            // Close current dashboard
+
+            // Close dashboard
             currentStage.close();
+
 
             // Create Login window
             Stage loginStage = new Stage();
