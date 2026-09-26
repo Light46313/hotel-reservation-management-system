@@ -7,6 +7,7 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
@@ -15,148 +16,411 @@
         xmlns="http://javafx.com/javafx/26"
         xmlns:fx="http://javafx.com/fxml/1"
         fx:controller="hotel.controller.LoginController"
-        prefWidth="600.0"
-        prefHeight="450.0"
-        minWidth="500.0"
-        minHeight="400.0">
+        prefWidth="900.0"
+        prefHeight="600.0"
+        minWidth="700.0"
+        minHeight="500.0"
+        style="-fx-background-color: #F5F7FB;">
 
-   <!-- ==================== LOGIN FORM ==================== -->
+   <!-- ========================================================= -->
+   <!-- MAIN LOGIN CONTAINER -->
+   <!-- ========================================================= -->
 
-   <VBox
+   <HBox
            alignment="CENTER"
-           spacing="15.0"
-           maxWidth="500.0">
+           spacing="0.0"
+           maxWidth="850.0"
+           maxHeight="500.0"
+           style="-fx-background-color: #FFFFFF;
+                   -fx-background-radius: 16;
+                   -fx-border-color: #E2E8F0;
+                   -fx-border-radius: 16;
+                   -fx-border-width: 1;">
 
-      <padding>
+      <!-- ===================================================== -->
+      <!-- LEFT INFORMATION PANEL -->
+      <!-- ===================================================== -->
 
-         <Insets
-                 top="30.0"
-                 right="30.0"
-                 bottom="30.0"
-                 left="30.0"/>
-
-      </padding>
-
-
-      <!-- ==================== TITLE ==================== -->
-
-      <Label
+      <VBox
               alignment="CENTER"
-              text="HOTEL MANAGEMENT LOGIN">
+              spacing="15.0"
+              prefWidth="330.0"
+              maxWidth="330.0"
+              style="-fx-background-color: #172554;
+                       -fx-background-radius: 16 0 0 16;">
 
-         <font>
-            <Font
-                    name="System Bold"
-                    size="26.0"/>
-         </font>
+         <padding>
 
-      </Label>
+            <Insets
+                    top="35.0"
+                    right="30.0"
+                    bottom="35.0"
+                    left="30.0"/>
+
+         </padding>
 
 
-      <!-- ==================== USERNAME ==================== -->
-
-      <HBox
-              alignment="CENTER"
-              spacing="10.0"
-              maxWidth="400.0">
+         <!-- HOTEL TITLE -->
 
          <Label
-                 alignment="CENTER_RIGHT"
-                 prefWidth="110.0"
-                 text="Username:">
+                 text="HOTEL"
+                 textFill="#93C5FD">
 
             <font>
-               <Font size="18.0"/>
+
+               <Font
+                       name="System Bold"
+                       size="18.0"/>
+
             </font>
 
          </Label>
 
 
-         <TextField
-                 fx:id="usernameField"
-                 prefHeight="35.0"
-                 prefWidth="240.0"
-                 promptText="Enter username"/>
-
-      </HBox>
-
-
-      <!-- ==================== PASSWORD ==================== -->
-
-      <HBox
-              alignment="CENTER"
-              spacing="10.0"
-              maxWidth="400.0">
-
          <Label
-                 alignment="CENTER_RIGHT"
-                 prefWidth="110.0"
-                 text="Password:">
+                 text="RESERVATION"
+                 textFill="WHITE">
 
             <font>
-               <Font size="18.0"/>
+
+               <Font
+                       name="System Bold"
+                       size="27.0"/>
+
             </font>
 
          </Label>
 
 
-         <PasswordField
-                 fx:id="passwordField"
-                 prefHeight="35.0"
-                 prefWidth="240.0"
-                 promptText="Enter password"/>
+         <Label
+                 text="MANAGEMENT SYSTEM"
+                 textFill="#BFDBFE">
 
-      </HBox>
+            <font>
 
+               <Font
+                       name="System Bold"
+                       size="15.0"/>
 
-      <!-- ==================== SHOW PASSWORD ==================== -->
+            </font>
 
-      <CheckBox
-              fx:id="showPasswordCheckBox"
-              mnemonicParsing="false"
-              onAction="#togglePasswordVisibility"
-              text="Show Password">
-
-         <font>
-            <Font size="14.0"/>
-         </font>
-
-      </CheckBox>
+         </Label>
 
 
-      <!-- ==================== LOGIN BUTTON ==================== -->
-
-      <Button
-              fx:id="loginButton"
-              mnemonicParsing="false"
-              onAction="#login"
-              prefHeight="40.0"
-              prefWidth="140.0"
-              text="Login">
-
-         <font>
-            <Font size="15.0"/>
-         </font>
-
-      </Button>
+         <Region
+                 prefHeight="20.0"/>
 
 
-      <!-- ==================== CHANGE CREDENTIALS ==================== -->
+         <Label
+                 text="Welcome Back"
+                 textFill="WHITE">
 
-      <Button
-              fx:id="changePasswordButton"
-              mnemonicParsing="false"
-              onAction="#changeCredentials"
-              prefHeight="40.0"
-              prefWidth="240.0"
-              text="Change Username / Password">
+            <font>
 
-         <font>
-            <Font size="14.0"/>
-         </font>
+               <Font
+                       name="System Bold"
+                       size="23.0"/>
 
-      </Button>
+            </font>
 
-   </VBox>
+         </Label>
+
+
+         <Label
+                 text="Sign in to access the hotel management dashboard."
+                 textFill="#CBD5E1"
+                 wrapText="true"
+                 maxWidth="240.0"
+                 alignment="CENTER">
+
+            <font>
+
+               <Font
+                       name="System"
+                       size="13.0"/>
+
+            </font>
+
+         </Label>
+
+
+         <Region
+                 prefHeight="15.0"/>
+
+
+         <Label
+                 text="Secure • Simple • Efficient"
+                 textFill="#60A5FA">
+
+            <font>
+
+               <Font
+                       name="System Bold"
+                       size="12.0"/>
+
+            </font>
+
+         </Label>
+
+      </VBox>
+
+
+      <!-- ===================================================== -->
+      <!-- RIGHT LOGIN PANEL -->
+      <!-- ===================================================== -->
+
+      <VBox
+              alignment="CENTER"
+              spacing="16.0"
+              prefWidth="500.0"
+              HBox.hgrow="ALWAYS">
+
+         <padding>
+
+            <Insets
+                    top="35.0"
+                    right="50.0"
+                    bottom="35.0"
+                    left="50.0"/>
+
+         </padding>
+
+
+         <!-- LOGIN TITLE -->
+
+         <VBox
+                 alignment="CENTER"
+                 spacing="5.0">
+
+            <Label
+                    text="Welcome Back"
+                    textFill="#172554">
+
+               <font>
+
+                  <Font
+                          name="System Bold"
+                          size="27.0"/>
+
+               </font>
+
+            </Label>
+
+
+            <Label
+                    text="Login to continue"
+                    textFill="#64748B">
+
+               <font>
+
+                  <Font
+                          name="System"
+                          size="13.0"/>
+
+               </font>
+
+            </Label>
+
+         </VBox>
+
+
+         <Region
+                 prefHeight="5.0"/>
+
+
+         <!-- ================================================= -->
+         <!-- USERNAME -->
+         <!-- ================================================= -->
+
+         <VBox
+                 spacing="6.0"
+                 maxWidth="360.0">
+
+            <Label
+                    text="Username"
+                    textFill="#334155">
+
+               <font>
+
+                  <Font
+                          name="System Bold"
+                          size="13.0"/>
+
+               </font>
+
+            </Label>
+
+
+            <TextField
+                    fx:id="usernameField"
+                    prefHeight="43.0"
+                    maxWidth="360.0"
+                    promptText="Enter username"
+                    style="-fx-background-color: #F8FAFC;
+                               -fx-border-color: #CBD5E1;
+                               -fx-border-width: 1;
+                               -fx-background-radius: 8;
+                               -fx-border-radius: 8;
+                               -fx-padding: 8 12 8 12;
+                               -fx-font-size: 13px;"/>
+
+         </VBox>
+
+
+         <!-- ================================================= -->
+         <!-- PASSWORD -->
+         <!-- ================================================= -->
+
+         <VBox
+                 spacing="6.0"
+                 maxWidth="360.0">
+
+            <Label
+                    text="Password"
+                    textFill="#334155">
+
+               <font>
+
+                  <Font
+                          name="System Bold"
+                          size="13.0"/>
+
+               </font>
+
+            </Label>
+
+
+            <PasswordField
+                    fx:id="passwordField"
+                    prefHeight="43.0"
+                    maxWidth="360.0"
+                    promptText="Enter password"
+                    style="-fx-background-color: #F8FAFC;
+                               -fx-border-color: #CBD5E1;
+                               -fx-border-width: 1;
+                               -fx-background-radius: 8;
+                               -fx-border-radius: 8;
+                               -fx-padding: 8 12 8 12;
+                               -fx-font-size: 13px;"/>
+
+         </VBox>
+
+
+         <!-- ================================================= -->
+         <!-- SHOW PASSWORD -->
+         <!-- ================================================= -->
+
+         <HBox
+                 alignment="CENTER_LEFT"
+                 maxWidth="360.0">
+
+            <CheckBox
+                    fx:id="showPasswordCheckBox"
+                    mnemonicParsing="false"
+                    onAction="#togglePasswordVisibility"
+                    text="Show Password"
+                    textFill="#475569">
+
+               <font>
+
+                  <Font
+                          name="System"
+                          size="13.0"/>
+
+               </font>
+
+            </CheckBox>
+
+         </HBox>
+
+
+         <Region
+                 prefHeight="2.0"/>
+
+
+         <!-- ================================================= -->
+         <!-- LOGIN BUTTON -->
+         <!-- ================================================= -->
+
+         <Button
+                 fx:id="loginButton"
+                 mnemonicParsing="false"
+                 onAction="#login"
+                 prefHeight="44.0"
+                 prefWidth="360.0"
+                 maxWidth="360.0"
+                 text="LOGIN"
+                 style="-fx-background-color: #2563EB;
+                           -fx-text-fill: white;
+                           -fx-font-size: 14px;
+                           -fx-font-weight: bold;
+                           -fx-background-radius: 8;
+                           -fx-cursor: hand;">
+
+            <font>
+
+               <Font
+                       name="System Bold"
+                       size="14.0"/>
+
+            </font>
+
+         </Button>
+
+
+         <!-- ================================================= -->
+         <!-- CHANGE CREDENTIALS -->
+         <!-- ================================================= -->
+
+         <Button
+                 fx:id="changePasswordButton"
+                 mnemonicParsing="false"
+                 onAction="#changeCredentials"
+                 prefHeight="40.0"
+                 prefWidth="360.0"
+                 maxWidth="360.0"
+                 text="Change Username / Password"
+                 style="-fx-background-color: #F1F5F9;
+                           -fx-text-fill: #334155;
+                           -fx-font-size: 13px;
+                           -fx-font-weight: bold;
+                           -fx-background-radius: 8;
+                           -fx-border-color: #CBD5E1;
+                           -fx-border-width: 1;
+                           -fx-border-radius: 8;
+                           -fx-cursor: hand;">
+
+            <font>
+
+               <Font
+                       name="System Bold"
+                       size="13.0"/>
+
+            </font>
+
+         </Button>
+
+
+         <!-- ================================================= -->
+         <!-- FOOTER -->
+         <!-- ================================================= -->
+
+         <Label
+                 text="Hotel Reservation and Management System"
+                 textFill="#94A3B8">
+
+            <font>
+
+               <Font
+                       name="System"
+                       size="11.0"/>
+
+            </font>
+
+         </Label>
+
+      </VBox>
+
+   </HBox>
 
 </StackPane>

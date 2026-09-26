@@ -10,7 +10,7 @@
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
@@ -18,63 +18,161 @@
         xmlns="http://javafx.com/javafx/26"
         xmlns:fx="http://javafx.com/fxml/1"
         fx:controller="hotel.controller.RoomController"
-        prefWidth="900.0"
-        prefHeight="600.0"
-        minWidth="800.0"
-        minHeight="500.0">
+        prefWidth="1100.0"
+        prefHeight="700.0"
+        minWidth="900.0"
+        minHeight="600.0"
+        style="-fx-background-color: #F5F7FB;">
 
-
-   <!-- ==================== TOP AREA ==================== -->
+   <!-- ========================================================= -->
+   <!-- TOP HEADER -->
+   <!-- ========================================================= -->
 
    <top>
 
-      <VBox
-              alignment="CENTER"
-              spacing="12.0">
+      <VBox spacing="0.0">
 
-         <padding>
-            <Insets
-                    top="15.0"
-                    right="20.0"
-                    bottom="15.0"
-                    left="20.0"/>
-         </padding>
-
-
-         <!-- TITLE -->
-
-         <Label
-                 alignment="CENTER"
-                 text="ROOM MANAGEMENT">
-
-            <font>
-               <Font
-                       name="System Bold"
-                       size="28.0"/>
-            </font>
-
-         </Label>
-
-
-         <!-- SEARCH -->
+         <!-- HEADER -->
 
          <HBox
-                 alignment="CENTER"
-                 spacing="10.0">
+                 alignment="CENTER_LEFT"
+                 spacing="15.0"
+                 prefHeight="90.0"
+                 style="-fx-background-color: #FFFFFF;
+                           -fx-border-color: #E2E8F0;
+                           -fx-border-width: 0 0 1 0;">
+
+            <padding>
+
+               <Insets
+                       top="15.0"
+                       right="30.0"
+                       bottom="15.0"
+                       left="30.0"/>
+
+            </padding>
+
+
+            <VBox spacing="3.0">
+
+               <Label
+                       text="ROOM MANAGEMENT"
+                       textFill="#1E3A8A">
+
+                  <font>
+
+                     <Font
+                             name="System Bold"
+                             size="26.0"/>
+
+                  </font>
+
+               </Label>
+
+
+               <Label
+                       text="Manage hotel rooms and availability"
+                       textFill="#64748B">
+
+                  <font>
+
+                     <Font
+                             name="System"
+                             size="13.0"/>
+
+                  </font>
+
+               </Label>
+
+            </VBox>
+
+
+            <Region
+                    HBox.hgrow="ALWAYS"/>
+
 
             <Label
-                    text="Search Room">
+                    text="ROOMS"
+                    textFill="#2563EB">
 
                <font>
-                  <Font size="16.0"/>
+
+                  <Font
+                          name="System Bold"
+                          size="14.0"/>
+
                </font>
 
             </Label>
 
+         </HBox>
+
+
+         <!-- SEARCH AREA -->
+
+         <HBox
+                 alignment="CENTER_LEFT"
+                 spacing="12.0"
+                 prefHeight="75.0"
+                 style="-fx-background-color: #FFFFFF;">
+
+            <padding>
+
+               <Insets
+                       top="15.0"
+                       right="30.0"
+                       bottom="15.0"
+                       left="30.0"/>
+
+            </padding>
+
+
+            <Label
+                    text="Search Room"
+                    textFill="#334155">
+
+               <font>
+
+                  <Font
+                          name="System Bold"
+                          size="14.0"/>
+
+               </font>
+
+            </Label>
+
+
             <TextField
                     fx:id="searchRoomField"
-                    prefWidth="250.0"
-                    promptText="Enter room number or room type"/>
+                    prefHeight="40.0"
+                    prefWidth="350.0"
+                    promptText="Enter room number or room type"
+                    style="-fx-background-color: #F8FAFC;
+                               -fx-border-color: #CBD5E1;
+                               -fx-border-width: 1;
+                               -fx-background-radius: 7;
+                               -fx-border-radius: 7;
+                               -fx-padding: 8 12 8 12;
+                               -fx-font-size: 13px;"/>
+
+
+            <Region
+                    HBox.hgrow="ALWAYS"/>
+
+
+            <Label
+                    text="Room database"
+                    textFill="#64748B">
+
+               <font>
+
+                  <Font
+                          name="System"
+                          size="13.0"/>
+
+               </font>
+
+            </Label>
 
          </HBox>
 
@@ -83,81 +181,205 @@
    </top>
 
 
-   <!-- ==================== CENTER AREA ==================== -->
+   <!-- ========================================================= -->
+   <!-- CENTER -->
+   <!-- ========================================================= -->
 
    <center>
 
-      <StackPane>
+      <HBox
+              spacing="20.0"
+              style="-fx-background-color: #F5F7FB;">
 
-         <HBox
-                 spacing="15.0">
+         <padding>
 
-            <padding>
-               <Insets
-                       top="10.0"
-                       right="20.0"
-                       bottom="10.0"
-                       left="20.0"/>
-            </padding>
+            <Insets
+                    top="25.0"
+                    right="30.0"
+                    bottom="20.0"
+                    left="30.0"/>
+
+         </padding>
 
 
-            <!-- ==================== LEFT PANEL ==================== -->
+         <!-- ===================================================== -->
+         <!-- LEFT INFORMATION PANEL -->
+         <!-- ===================================================== -->
 
-            <VBox
-                    spacing="10.0"
-                    prefWidth="210.0">
+         <VBox
+                 prefWidth="220.0"
+                 minWidth="200.0"
+                 spacing="15.0"
+                 style="-fx-background-color: #172554;
+                           -fx-background-radius: 12;
+                           -fx-padding: 20;">
+
+            <!-- TITLE -->
+
+            <Label
+                    text="Room Information"
+                    textFill="WHITE">
+
+               <font>
+
+                  <Font
+                          name="System Bold"
+                          size="18.0"/>
+
+               </font>
+
+            </Label>
+
+
+            <Label
+                    text="Available facilities"
+                    textFill="#BFDBFE">
+
+               <font>
+
+                  <Font
+                          name="System"
+                          size="13.0"/>
+
+               </font>
+
+            </Label>
+
+
+            <!-- FACILITIES -->
+
+            <ListView
+                    fx:id="facilityListView"
+                    prefHeight="210.0"
+                    prefWidth="180.0"
+                    VBox.vgrow="ALWAYS"
+                    style="-fx-background-color: #FFFFFF;
+                               -fx-background-radius: 7;
+                               -fx-border-radius: 7;
+                               -fx-border-color: #BFDBFE;
+                               -fx-border-width: 1;"/>
+
+
+            <!-- TREE TITLE -->
+
+            <Label
+                    text="Hotel Structure"
+                    textFill="#BFDBFE">
+
+               <font>
+
+                  <Font
+                          name="System Bold"
+                          size="14.0"/>
+
+               </font>
+
+            </Label>
+
+
+            <!-- HOTEL TREE -->
+
+            <TreeView
+                    fx:id="hotelTreeView"
+                    prefHeight="210.0"
+                    prefWidth="180.0"
+                    VBox.vgrow="ALWAYS"
+                    style="-fx-background-color: #FFFFFF;
+                               -fx-background-radius: 7;
+                               -fx-border-radius: 7;
+                               -fx-border-color: #BFDBFE;
+                               -fx-border-width: 1;"/>
+
+         </VBox>
+
+
+         <!-- ===================================================== -->
+         <!-- RIGHT ROOM TABLE AREA -->
+         <!-- ===================================================== -->
+
+         <VBox
+                 spacing="12.0"
+                 HBox.hgrow="ALWAYS"
+                 style="-fx-background-color: #FFFFFF;
+                           -fx-background-radius: 12;
+                           -fx-border-color: #E2E8F0;
+                           -fx-border-radius: 12;
+                           -fx-border-width: 1;
+                           -fx-padding: 20;">
+
+            <!-- TABLE HEADER -->
+
+            <HBox
+                    alignment="CENTER_LEFT"
+                    spacing="10.0">
+
+               <VBox spacing="3.0">
+
+                  <Label
+                          text="Room List"
+                          textFill="#172554">
+
+                     <font>
+
+                        <Font
+                                name="System Bold"
+                                size="21.0"/>
+
+                     </font>
+
+                  </Label>
+
+
+                  <Label
+                          text="View and manage all hotel rooms"
+                          textFill="#64748B">
+
+                     <font>
+
+                        <Font
+                                name="System"
+                                size="13.0"/>
+
+                     </font>
+
+                  </Label>
+
+               </VBox>
+
+
+               <Region
+                       HBox.hgrow="ALWAYS"/>
+
 
                <Label
-                       text="Available Facilities">
+                       text="ROOMS"
+                       textFill="#2563EB">
 
                   <font>
+
                      <Font
                              name="System Bold"
-                             size="16.0"/>
+                             size="12.0"/>
+
                   </font>
 
                </Label>
 
-
-               <!-- FACILITIES LIST -->
-
-               <ListView
-                       fx:id="facilityListView"
-                       prefHeight="200.0"
-                       prefWidth="200.0"
-                       VBox.vgrow="ALWAYS"/>
+            </HBox>
 
 
-               <Label
-                       text="Hotel Structure">
-
-                  <font>
-                     <Font
-                             name="System Bold"
-                             size="16.0"/>
-                  </font>
-
-               </Label>
-
-
-               <!-- HOTEL TREE -->
-
-               <TreeView
-                       fx:id="hotelTreeView"
-                       prefHeight="200.0"
-                       prefWidth="200.0"
-                       VBox.vgrow="ALWAYS"/>
-
-            </VBox>
-
-
-            <!-- ==================== ROOM TABLE ==================== -->
+            <!-- ROOM TABLE -->
 
             <TableView
                     fx:id="roomTable"
-                    prefHeight="400.0"
-                    prefWidth="600.0"
-                    HBox.hgrow="ALWAYS">
+                    prefHeight="450.0"
+                    prefWidth="650.0"
+                    HBox.hgrow="ALWAYS"
+                    VBox.vgrow="ALWAYS"
+                    style="-fx-background-color: #FFFFFF;
+                               -fx-border-color: #CBD5E1;
+                               -fx-border-radius: 8;
+                               -fx-background-radius: 8;">
 
                <columns>
 
@@ -189,29 +411,40 @@
 
             </TableView>
 
-         </HBox>
+         </VBox>
 
-      </StackPane>
+      </HBox>
 
    </center>
 
 
-   <!-- ==================== BOTTOM AREA ==================== -->
+   <!-- ========================================================= -->
+   <!-- BOTTOM ACTION BAR -->
+   <!-- ========================================================= -->
 
    <bottom>
 
       <HBox
-              alignment="CENTER"
-              spacing="20.0"
-              prefHeight="70.0">
+              alignment="CENTER_RIGHT"
+              spacing="12.0"
+              prefHeight="75.0"
+              style="-fx-background-color: #FFFFFF;
+                       -fx-border-color: #E2E8F0;
+                       -fx-border-width: 1 0 0 0;">
 
          <padding>
+
             <Insets
-                    top="10.0"
-                    right="20.0"
-                    bottom="15.0"
-                    left="20.0"/>
+                    top="12.0"
+                    right="30.0"
+                    bottom="12.0"
+                    left="30.0"/>
+
          </padding>
+
+
+         <Region
+                 HBox.hgrow="ALWAYS"/>
 
 
          <!-- ADD ROOM -->
@@ -220,9 +453,15 @@
                  fx:id="addRoomButton"
                  mnemonicParsing="false"
                  onAction="#addRoom"
-                 prefHeight="40.0"
+                 prefHeight="42.0"
                  prefWidth="130.0"
-                 text="Add Room"/>
+                 text="Add Room"
+                 style="-fx-background-color: #2563EB;
+                           -fx-text-fill: white;
+                           -fx-font-size: 13px;
+                           -fx-font-weight: bold;
+                           -fx-background-radius: 8;
+                           -fx-cursor: hand;"/>
 
 
          <!-- UPDATE -->
@@ -231,9 +470,15 @@
                  fx:id="updateRoomButton"
                  mnemonicParsing="false"
                  onAction="#updateRoom"
-                 prefHeight="40.0"
+                 prefHeight="42.0"
                  prefWidth="130.0"
-                 text="Update"/>
+                 text="Update"
+                 style="-fx-background-color: #16A34A;
+                           -fx-text-fill: white;
+                           -fx-font-size: 13px;
+                           -fx-font-weight: bold;
+                           -fx-background-radius: 8;
+                           -fx-cursor: hand;"/>
 
 
          <!-- DELETE -->
@@ -242,9 +487,15 @@
                  fx:id="deleteRoomButton"
                  mnemonicParsing="false"
                  onAction="#deleteRoom"
-                 prefHeight="40.0"
+                 prefHeight="42.0"
                  prefWidth="130.0"
-                 text="Delete"/>
+                 text="Delete"
+                 style="-fx-background-color: #DC2626;
+                           -fx-text-fill: white;
+                           -fx-font-size: 13px;
+                           -fx-font-weight: bold;
+                           -fx-background-radius: 8;
+                           -fx-cursor: hand;"/>
 
 
          <!-- BACK -->
@@ -252,9 +503,15 @@
          <Button
                  mnemonicParsing="false"
                  onAction="#backToMain"
-                 prefHeight="40.0"
+                 prefHeight="42.0"
                  prefWidth="100.0"
-                 text="Back"/>
+                 text="Back"
+                 style="-fx-background-color: #E2E8F0;
+                           -fx-text-fill: #334155;
+                           -fx-font-size: 13px;
+                           -fx-font-weight: bold;
+                           -fx-background-radius: 8;
+                           -fx-cursor: hand;"/>
 
       </HBox>
 
