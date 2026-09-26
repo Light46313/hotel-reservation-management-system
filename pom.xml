@@ -11,13 +11,22 @@
     <artifactId>hotel-reservation-management-system</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <!-- ================================================= -->
+    <!-- PROJECT PROPERTIES -->
+    <!-- ================================================= -->
+
     <properties>
         <maven.compiler.source>26</maven.compiler.source>
         <maven.compiler.target>26</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <javafx.version>26.0.1</javafx.version>
+        <jackson.version>2.20.0</jackson.version>
     </properties>
+
+    <!-- ================================================= -->
+    <!-- DEPENDENCIES -->
+    <!-- ================================================= -->
 
     <dependencies>
 
@@ -42,11 +51,24 @@
             <version>3.50.3.0</version>
         </dependency>
 
+        <!-- Jackson JSON -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
     </dependencies>
 
+    <!-- ================================================= -->
+    <!-- BUILD -->
+    <!-- ================================================= -->
+
     <build>
+
         <plugins>
 
+            <!-- JavaFX Maven Plugin -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
@@ -59,6 +81,7 @@
             </plugin>
 
         </plugins>
+
     </build>
 
 </project>

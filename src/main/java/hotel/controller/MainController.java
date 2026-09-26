@@ -33,7 +33,8 @@ public class MainController {
         refreshDataButton.sceneProperty().addListener(
                 (observable, oldScene, newScene) -> {
 
-                    if (newScene != null) {
+                    if (newScene != null
+                            && !refreshDataButton.prefWidthProperty().isBound()) {
 
                         // Width = 15% of window width
                         refreshDataButton.prefWidthProperty().bind(
@@ -53,7 +54,8 @@ public class MainController {
         logoutButton.sceneProperty().addListener(
                 (observable, oldScene, newScene) -> {
 
-                    if (newScene != null) {
+                    if (newScene != null
+                            && !logoutButton.prefWidthProperty().isBound()) {
 
                         // Width = 12% of window width
                         logoutButton.prefWidthProperty().bind(
@@ -221,6 +223,48 @@ public class MainController {
             showMessage(
                     "Error",
                     "Could not open Booking History."
+            );
+        }
+    }
+
+
+    // =========================
+    // WEATHER INFORMATION
+    // =========================
+
+    @FXML
+    private void openWeather() {
+
+        try {
+
+            FXMLLoader loader = new FXMLLoader(
+                    MainController.class.getResource(
+                            "/view/WeatherView.fxml"
+                    )
+            );
+
+            Scene scene = new Scene(loader.load());
+
+            Stage stage = new Stage();
+
+            stage.setTitle("Weather Information");
+            stage.setScene(scene);
+
+            stage.setWidth(1000);
+            stage.setHeight(650);
+
+            stage.setMinWidth(800);
+            stage.setMinHeight(550);
+
+            stage.show();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            showMessage(
+                    "Weather Error",
+                    "Could not open Weather Information."
             );
         }
     }

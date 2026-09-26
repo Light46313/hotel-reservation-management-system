@@ -298,6 +298,22 @@
                            -fx-cursor: hand;"/>
 
 
+            <!-- WEATHER INFORMATION -->
+
+            <Button
+                    maxWidth="Infinity"
+                    prefHeight="48.0"
+                    mnemonicParsing="false"
+                    onAction="#openWeather"
+                    text="Weather Information"
+                    style="-fx-background-color: #0EA5E9;
+                           -fx-text-fill: white;
+                           -fx-font-size: 14px;
+                           -fx-font-weight: bold;
+                           -fx-background-radius: 8;
+                           -fx-cursor: hand;"/>
+
+
             <Region
                     VBox.vgrow="ALWAYS"/>
 
@@ -684,6 +700,23 @@
                                            -fx-background-radius: 8;
                                            -fx-cursor: hand;"/>
 
+
+                            <!-- WEATHER BUTTON -->
+
+                            <Button
+                                    maxWidth="Infinity"
+                                    prefHeight="48.0"
+                                    HBox.hgrow="ALWAYS"
+                                    mnemonicParsing="false"
+                                    onAction="#openWeather"
+                                    text="Weather"
+                                    style="-fx-background-color: #0EA5E9;
+                                           -fx-text-fill: white;
+                                           -fx-font-size: 14px;
+                                           -fx-font-weight: bold;
+                                           -fx-background-radius: 8;
+                                           -fx-cursor: hand;"/>
+
                         </HBox>
 
                     </VBox>
@@ -825,6 +858,79 @@
                                 </font>
 
                             </Label>
+
+                        </VBox>
+
+
+                        <!-- WEATHER INFORMATION CARD -->
+
+                        <VBox
+                                spacing="10.0"
+                                HBox.hgrow="ALWAYS"
+                                style="-fx-background-color: #E0F2FE;
+                                       -fx-background-radius: 12;
+                                       -fx-border-color: #7DD3FC;
+                                       -fx-border-radius: 12;
+                                       -fx-border-width: 1;
+                                       -fx-padding: 22;">
+
+                            <Label
+                                    text="NETWORKING"
+                                    textFill="#0369A1">
+
+                                <font>
+
+                                    <Font
+                                            name="System Bold"
+                                            size="13.0"/>
+
+                                </font>
+
+                            </Label>
+
+
+                            <Label
+                                    text="Live Weather"
+                                    textFill="#075985">
+
+                                <font>
+
+                                    <Font
+                                            name="System Bold"
+                                            size="20.0"/>
+
+                                </font>
+
+                            </Label>
+
+
+                            <Label
+                                    text="Retrieve live weather data from an online API using JSON parsing."
+                                    textFill="#475569"
+                                    wrapText="true">
+
+                                <font>
+
+                                    <Font
+                                            name="System"
+                                            size="13.0"/>
+
+                                </font>
+
+                            </Label>
+
+
+                            <Button
+                                    prefHeight="40.0"
+                                    mnemonicParsing="false"
+                                    onAction="#openWeather"
+                                    text="Open Weather"
+                                    style="-fx-background-color: #0EA5E9;
+                                           -fx-text-fill: white;
+                                           -fx-font-size: 13px;
+                                           -fx-font-weight: bold;
+                                           -fx-background-radius: 7;
+                                           -fx-cursor: hand;"/>
 
                         </VBox>
 
