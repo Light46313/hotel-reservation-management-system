@@ -1,6 +1,8 @@
 package hotel.controller;
 
+import hotel.database.RoomDAO;
 import hotel.model.Room;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -17,6 +19,7 @@ import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
+import java.util.List;
 import java.util.Optional;
 
 public class RoomController {
@@ -42,7 +45,7 @@ public class RoomController {
 
 
     // =========================
-    // PART 7 - SEARCH ROOM
+    // SEARCH ROOM
     // =========================
 
     @FXML
@@ -50,7 +53,7 @@ public class RoomController {
 
 
     // =========================
-    // PART 9 - FACILITY LIST
+    // FACILITY LIST
     // =========================
 
     @FXML
@@ -58,7 +61,7 @@ public class RoomController {
 
 
     // =========================
-    // PART 10 - TREEVIEW
+    // TREEVIEW
     // =========================
 
     @FXML
@@ -69,8 +72,16 @@ public class RoomController {
     // ROOM LIST
     // =========================
 
-    private ObservableList<Room> roomList =
+    private final ObservableList<Room> roomList =
             FXCollections.observableArrayList();
+
+
+    // =========================
+    // ROOM DAO
+    // =========================
+
+    private final RoomDAO roomDAO =
+            new RoomDAO();
 
 
     // =========================
@@ -80,29 +91,39 @@ public class RoomController {
     @FXML
     public void initialize() {
 
-        // Connect Room Number column
+        // =========================
+        // CONNECT TABLE COLUMNS
+        // =========================
+
         roomNumberColumn.setCellValueFactory(
                 new PropertyValueFactory<>("roomNumber")
         );
 
-        // Connect Room Type column
         roomTypeColumn.setCellValueFactory(
                 new PropertyValueFactory<>("roomType")
         );
 
-        // Connect Price column
         priceColumn.setCellValueFactory(
                 new PropertyValueFactory<>("price")
         );
 
-        // Connect Available column
         availableColumn.setCellValueFactory(
                 new PropertyValueFactory<>("available")
         );
 
 
-        // Connect list with TableView
+        // =========================
+        // CONNECT LIST WITH TABLE
+        // =========================
+
         roomTable.setItems(roomList);
+
+
+        // =========================
+        // LOAD ROOMS FROM DATABASE
+        // =========================
+
+        loadRoomsFromDatabase();
 
 
         // =========================
@@ -119,14 +140,12 @@ public class RoomController {
 
                         if (newValue) {
 
-                            // Highlight selected room
                             row.setStyle(
                                     "-fx-background-color: #FFD54F;"
                             );
 
                         } else {
 
-                            // Remove custom highlight
                             row.setStyle("");
                         }
                     }
@@ -137,28 +156,8 @@ public class RoomController {
 
 
         // =========================
-        // SAMPLE ROOMS FOR TESTING
+        // SEARCH USING ENTER
         // =========================
-
-        roomList.add(
-                new Room(101, "Single", 1500, true)
-        );
-
-        roomList.add(
-                new Room(102, "Double", 2500, true)
-        );
-
-        roomList.add(
-                new Room(103, "Suite", 4000, false)
-        );
-
-
-        // =========================
-        // PART 7 - setOnAction()
-        // =========================
-
-        // Press Enter inside the TextField
-        // to search for the room.
 
         searchRoomField.setOnAction(event -> {
             searchRoom();
@@ -166,7 +165,7 @@ public class RoomController {
 
 
         // =========================
-        // PART 9 - LISTVIEW ITEMS
+        // FACILITY LIST
         // =========================
 
         ObservableList<String> facilities =
@@ -178,12 +177,11 @@ public class RoomController {
                         "Wi-Fi"
                 );
 
-        // Put the facilities into the ListView
         facilityListView.setItems(facilities);
 
 
         // =========================
-        // PART 9 - LISTVIEW SELECTION
+        // FACILITY SELECTION
         // =========================
 
         facilityListView.getSelectionModel()
@@ -204,19 +202,20 @@ public class RoomController {
 
 
         // =========================
-        // PART 10 - TREEVIEW
+        // TREEVIEW
         // =========================
 
-        // Root node
         TreeItem<String> hotel =
                 new TreeItem<>("Hotel");
 
 
-        // Rooms category
+        // =========================
+        // ROOMS CATEGORY
+        // =========================
+
         TreeItem<String> rooms =
                 new TreeItem<>("Rooms");
 
-        // Room types
         TreeItem<String> single =
                 new TreeItem<>("Single");
 
@@ -227,11 +226,13 @@ public class RoomController {
                 new TreeItem<>("Suite");
 
 
-        // Services category
+        // =========================
+        // SERVICES CATEGORY
+        // =========================
+
         TreeItem<String> services =
                 new TreeItem<>("Services");
 
-        // Services
         TreeItem<String> restaurant =
                 new TreeItem<>("Restaurant");
 
@@ -281,12 +282,13 @@ public class RoomController {
         hotelTreeView.setRoot(hotel);
 
 
-        // Expand Hotel initially
+        // Expand Hotel
         hotel.setExpanded(true);
 
-
-        // Expand Rooms and Services initially
+        // Expand Rooms
         rooms.setExpanded(true);
+
+        // Expand Services
         services.setExpanded(true);
 
 
@@ -313,93 +315,90 @@ public class RoomController {
 
 
     // =========================
-    // PART 7 - SEARCH ROOM
+    // LOAD ROOMS FROM DATABASE
+    // =========================
+
+    private void loadRoomsFromDatabase() {
+
+        roomList.clear();
+
+        List<Room> rooms =
+                roomDAO.getAllRooms();
+
+        roomList.addAll(rooms);
+    }
+
+
+    // =========================
+    // SEARCH ROOM
     // =========================
 
     private void searchRoom() {
 
-        // Get text from TextField
-
-        String roomNumberText =
+        String searchText =
                 searchRoomField.getText().trim();
 
 
-        // Check if the TextField is empty
+        // =========================
+        // EMPTY SEARCH
+        // =========================
 
-        if (roomNumberText.isEmpty()) {
+        if (searchText.isEmpty()) {
+
+            loadRoomsFromDatabase();
+
+            return;
+        }
+
+
+        // =========================
+        // SEARCH DATABASE
+        // =========================
+
+        List<Room> searchResults =
+                roomDAO.searchRooms(searchText);
+
+
+        roomList.setAll(searchResults);
+
+
+        // =========================
+        // CHECK RESULT
+        // =========================
+
+        if (searchResults.isEmpty()) {
 
             showMessage(
-                    "Warning",
-                    "Please enter a room number."
+                    "Not Found",
+                    "No room was found for: "
+                            + searchText
             );
 
             return;
         }
 
 
-        try {
+        // =========================
+        // SELECT FIRST RESULT
+        // =========================
 
-            // Convert entered text to integer
+        Room firstRoom =
+                searchResults.get(0);
 
-            int roomNumber =
-                    Integer.parseInt(
-                            roomNumberText
-                    );
+        roomTable.getSelectionModel()
+                .select(firstRoom);
 
+        roomTable.scrollTo(firstRoom);
 
-            // Search through all rooms
-
-            for (Room room : roomList) {
-
-                if (room.getRoomNumber() == roomNumber) {
-
-                    // Select the found room
-
-                    roomTable.getSelectionModel()
-                            .select(room);
+        roomTable.requestFocus();
 
 
-                    // Scroll to the found room
-
-                    roomTable.scrollTo(room);
-
-
-                    // Give focus to the TableView
-
-                    roomTable.requestFocus();
-
-
-                    showMessage(
-                            "Room Found",
-                            "Room "
-                                    + roomNumber
-                                    + " found successfully."
-                    );
-
-                    return;
-                }
-            }
-
-
-            // Room was not found
-
-            showMessage(
-                    "Not Found",
-                    "Room "
-                            + roomNumber
-                            + " was not found."
-            );
-
-
-        } catch (NumberFormatException e) {
-
-            // Invalid input
-
-            showMessage(
-                    "Error",
-                    "Please enter a valid room number."
-            );
-        }
+        showMessage(
+                "Room Found",
+                "Room "
+                        + firstRoom.getRoomNumber()
+                        + " found successfully."
+        );
     }
 
 
@@ -410,17 +409,23 @@ public class RoomController {
     @FXML
     private void addRoom() {
 
-        // Room Number
+        // =========================
+        // ROOM NUMBER
+        // =========================
+
         TextInputDialog roomNumberDialog =
                 new TextInputDialog();
 
         roomNumberDialog.setTitle("Add Room");
+
         roomNumberDialog.setHeaderText(
                 "Enter Room Number"
         );
+
         roomNumberDialog.setContentText(
                 "Room Number:"
         );
+
 
         Optional<String> roomNumberResult =
                 roomNumberDialog.showAndWait();
@@ -430,17 +435,23 @@ public class RoomController {
         }
 
 
-        // Room Type
+        // =========================
+        // ROOM TYPE
+        // =========================
+
         TextInputDialog roomTypeDialog =
                 new TextInputDialog();
 
         roomTypeDialog.setTitle("Add Room");
+
         roomTypeDialog.setHeaderText(
                 "Enter Room Type"
         );
+
         roomTypeDialog.setContentText(
                 "Room Type:"
         );
+
 
         Optional<String> roomTypeResult =
                 roomTypeDialog.showAndWait();
@@ -450,17 +461,23 @@ public class RoomController {
         }
 
 
-        // Price
+        // =========================
+        // PRICE
+        // =========================
+
         TextInputDialog priceDialog =
                 new TextInputDialog();
 
         priceDialog.setTitle("Add Room");
+
         priceDialog.setHeaderText(
                 "Enter Room Price"
         );
+
         priceDialog.setContentText(
                 "Price:"
         );
+
 
         Optional<String> priceResult =
                 priceDialog.showAndWait();
@@ -474,19 +491,67 @@ public class RoomController {
 
             int roomNumber =
                     Integer.parseInt(
-                            roomNumberResult.get()
+                            roomNumberResult.get().trim()
                     );
 
             String roomType =
-                    roomTypeResult.get();
+                    roomTypeResult.get().trim();
 
             double price =
                     Double.parseDouble(
-                            priceResult.get()
+                            priceResult.get().trim()
                     );
 
 
-            // New room is available by default
+            // =========================
+            // VALIDATION
+            // =========================
+
+            if (roomType.isEmpty()) {
+
+                showMessage(
+                        "Error",
+                        "Room type cannot be empty."
+                );
+
+                return;
+            }
+
+            if (price < 0) {
+
+                showMessage(
+                        "Error",
+                        "Room price cannot be negative."
+                );
+
+                return;
+            }
+
+
+            // =========================
+            // CHECK DUPLICATE ROOM
+            // =========================
+
+            Room existingRoom =
+                    roomDAO.getRoomByNumber(roomNumber);
+
+            if (existingRoom != null) {
+
+                showMessage(
+                        "Error",
+                        "Room "
+                                + roomNumber
+                                + " already exists."
+                );
+
+                return;
+            }
+
+
+            // =========================
+            // CREATE ROOM
+            // =========================
+
             Room room =
                     new Room(
                             roomNumber,
@@ -495,7 +560,19 @@ public class RoomController {
                             true
                     );
 
-            roomList.add(room);
+
+            // =========================
+            // SAVE TO DATABASE
+            // =========================
+
+            roomDAO.addRoom(room);
+
+
+            // =========================
+            // RELOAD FROM DATABASE
+            // =========================
+
+            loadRoomsFromDatabase();
 
 
             showMessage(
@@ -509,6 +586,13 @@ public class RoomController {
             showMessage(
                     "Error",
                     "Please enter valid numbers."
+            );
+
+        } catch (RuntimeException e) {
+
+            showMessage(
+                    "Database Error",
+                    e.getMessage()
             );
         }
     }
@@ -527,6 +611,10 @@ public class RoomController {
                         .getSelectedItem();
 
 
+        // =========================
+        // CHECK SELECTION
+        // =========================
+
         if (selectedRoom == null) {
 
             showMessage(
@@ -538,7 +626,10 @@ public class RoomController {
         }
 
 
-        // New Room Type
+        // =========================
+        // NEW ROOM TYPE
+        // =========================
+
         TextInputDialog roomTypeDialog =
                 new TextInputDialog(
                         selectedRoom.getRoomType()
@@ -565,7 +656,10 @@ public class RoomController {
         }
 
 
-        // New Price
+        // =========================
+        // NEW PRICE
+        // =========================
+
         TextInputDialog priceDialog =
                 new TextInputDialog(
                         String.valueOf(
@@ -597,13 +691,42 @@ public class RoomController {
         try {
 
             String newRoomType =
-                    roomTypeResult.get();
+                    roomTypeResult.get().trim();
 
             double newPrice =
                     Double.parseDouble(
-                            priceResult.get()
+                            priceResult.get().trim()
                     );
 
+
+            // =========================
+            // VALIDATION
+            // =========================
+
+            if (newRoomType.isEmpty()) {
+
+                showMessage(
+                        "Error",
+                        "Room type cannot be empty."
+                );
+
+                return;
+            }
+
+            if (newPrice < 0) {
+
+                showMessage(
+                        "Error",
+                        "Room price cannot be negative."
+                );
+
+                return;
+            }
+
+
+            // =========================
+            // UPDATE OBJECT
+            // =========================
 
             selectedRoom.setRoomType(
                     newRoomType
@@ -614,8 +737,20 @@ public class RoomController {
             );
 
 
-            // Refresh TableView
-            roomTable.refresh();
+            // =========================
+            // UPDATE DATABASE
+            // =========================
+
+            roomDAO.updateRoom(
+                    selectedRoom
+            );
+
+
+            // =========================
+            // RELOAD DATABASE DATA
+            // =========================
+
+            loadRoomsFromDatabase();
 
 
             showMessage(
@@ -629,6 +764,13 @@ public class RoomController {
             showMessage(
                     "Error",
                     "Please enter a valid price."
+            );
+
+        } catch (RuntimeException e) {
+
+            showMessage(
+                    "Database Error",
+                    e.getMessage()
             );
         }
     }
@@ -647,6 +789,10 @@ public class RoomController {
                         .getSelectedItem();
 
 
+        // =========================
+        // CHECK SELECTION
+        // =========================
+
         if (selectedRoom == null) {
 
             showMessage(
@@ -657,6 +803,10 @@ public class RoomController {
             return;
         }
 
+
+        // =========================
+        // CONFIRMATION
+        // =========================
 
         Alert confirmation =
                 new Alert(
@@ -682,17 +832,35 @@ public class RoomController {
                 confirmation.showAndWait();
 
 
+        // =========================
+        // DELETE
+        // =========================
+
         if (result.isPresent()
                 && result.get() == ButtonType.OK) {
 
-            roomList.remove(
-                    selectedRoom
-            );
+            try {
 
-            showMessage(
-                    "Success",
-                    "Room deleted successfully!"
-            );
+                roomDAO.deleteRoom(
+                        selectedRoom.getRoomNumber()
+                );
+
+
+                loadRoomsFromDatabase();
+
+
+                showMessage(
+                        "Success",
+                        "Room deleted successfully!"
+                );
+
+            } catch (RuntimeException e) {
+
+                showMessage(
+                        "Database Error",
+                        e.getMessage()
+                );
+            }
         }
     }
 
@@ -704,13 +872,11 @@ public class RoomController {
     @FXML
     private void backToMain() {
 
-        // Get the current Room Management window
         Stage stage =
                 (Stage) roomTable
                         .getScene()
                         .getWindow();
 
-        // Close Room Management window
         stage.close();
     }
 
@@ -730,7 +896,9 @@ public class RoomController {
                 );
 
         alert.setTitle(title);
+
         alert.setHeaderText(null);
+
         alert.setContentText(message);
 
         alert.showAndWait();

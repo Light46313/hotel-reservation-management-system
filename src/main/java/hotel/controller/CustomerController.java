@@ -1,8 +1,7 @@
 package hotel.controller;
 
+import hotel.database.CustomerDAO;
 import hotel.model.Customer;
-import hotel.model.CustomerData;
-import hotel.model.CustomerStorage;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,18 +11,20 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.image.ImageView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -53,13 +54,17 @@ public class CustomerController implements Initializable {
 
 
     // =========================
-    // PART 6 - CUSTOMER IMAGE
+    // CUSTOMER IMAGE
     // =========================
 
     @FXML
     private ImageView customerImageView;
 
-    // PART 14 - SPECIAL REQUEST / CUSTOMER NOTES
+
+    // =========================
+    // SPECIAL REQUEST
+    // =========================
+
     @FXML
     private TextArea specialRequestTextArea;
 
@@ -68,12 +73,20 @@ public class CustomerController implements Initializable {
     // CUSTOMER LIST
     // =========================
 
-    private ObservableList<Customer> customerList =
-            CustomerData.customerList;
+    private final ObservableList<Customer> customerList =
+            FXCollections.observableArrayList();
 
 
     // =========================
-    // PART 8 - INITIALIZABLE
+    // CUSTOMER DAO
+    // =========================
+
+    private final CustomerDAO customerDAO =
+            new CustomerDAO();
+
+
+    // =========================
+    // INITIALIZE
     // =========================
 
     @Override
@@ -82,7 +95,9 @@ public class CustomerController implements Initializable {
             ResourceBundle resources
     ) {
 
-        // Connect columns with Customer.java
+        // =========================
+        // CONNECT TABLE COLUMNS
+        // =========================
 
         customerIdColumn.setCellValueFactory(
                 new PropertyValueFactory<>("customerId")
@@ -105,114 +120,54 @@ public class CustomerController implements Initializable {
         );
 
 
-        // Connect list with TableView
+        // =========================
+        // CONNECT LIST WITH TABLE
+        // =========================
 
         customerTable.setItems(customerList);
 
 
         // =========================
-        // LOAD SAVED CUSTOMERS
+        // LOAD CUSTOMERS FROM SQLITE
         // =========================
 
-        // Clear the shared list first
-        customerList.clear();
-
-        // Load customers from customers.dat
-        ObservableList<Customer> savedCustomers =
-                CustomerStorage.loadCustomers();
-
-        customerList.addAll(savedCustomers);
+        loadCustomersFromDatabase();
 
 
         // =========================
-        // SAMPLE CUSTOMERS
+        // AUTOMATICALLY SELECT
+        // FIRST CUSTOMER
         // =========================
-
-        // Add sample customers only
-        // if there are no saved customers.
-
-        if (customerList.isEmpty()) {
-
-            customerList.add(
-                    new Customer(
-                            1,
-                            "Argho",
-                            "01711111111",
-                            "argho@gmail.com",
-                            "Dhaka"
-                    )
-            );
-
-            customerList.add(
-                    new Customer(
-                            2,
-                            "Rahim",
-                            "01822222222",
-                            "rahim@gmail.com",
-                            "Chittagong"
-                    )
-            );
-
-            customerList.add(
-                    new Customer(
-                            3,
-                            "Karim",
-                            "01933333333",
-                            "karim@gmail.com",
-                            "Khulna"
-                    )
-            );
-
-            // Save sample customers
-            CustomerStorage.saveCustomers(customerList);
-        }
-
-
-        // =========================
-        // PART 8 - AUTOMATIC SETUP
-        // =========================
-
-        // Automatically select the first customer
-        // when Customer Management opens.
 
         if (!customerList.isEmpty()) {
 
-            customerTable.getSelectionModel()
+            customerTable
+                    .getSelectionModel()
                     .selectFirst();
 
-            System.out.println(
-                    "Customer Management initialized successfully."
+            loadCustomerImage(
+                    customerList.get(0)
             );
         }
 
 
         // =========================
-        // PART 6 - CUSTOMER SELECTION
+        // CUSTOMER SELECTION
         // =========================
 
-        // When the user selects a customer,
-        // show that customer's saved photo.
-
-        customerTable.getSelectionModel()
+        customerTable
+                .getSelectionModel()
                 .selectedItemProperty()
                 .addListener(
-                        (observable, oldCustomer, newCustomer) -> {
+                        (observable,
+                         oldCustomer,
+                         newCustomer) -> {
 
-                            if (newCustomer != null
-                                    && newCustomer.getPhotoPath() != null
-                                    && !newCustomer.getPhotoPath().isEmpty()) {
+                            if (newCustomer != null) {
 
-                                Image image =
-                                        new Image(
-                                                newCustomer.getPhotoPath()
-                                        );
-
-                                customerImageView.setImage(image);
-
-                            } else {
-
-                                // No photo for this customer
-                                customerImageView.setImage(null);
+                                loadCustomerImage(
+                                        newCustomer
+                                );
                             }
                         }
                 );
@@ -220,13 +175,66 @@ public class CustomerController implements Initializable {
 
 
     // =========================
-    // PART 6 - BROWSE IMAGE
+    // LOAD CUSTOMERS FROM SQLITE
+    // =========================
+
+    private void loadCustomersFromDatabase() {
+
+        customerList.clear();
+
+        List<Customer> customers =
+                customerDAO.getAllCustomers();
+
+        customerList.addAll(customers);
+    }
+
+
+    // =========================
+    // LOAD CUSTOMER IMAGE
+    // =========================
+
+    private void loadCustomerImage(
+            Customer customer
+    ) {
+
+        if (customer == null) {
+
+            customerImageView.setImage(null);
+
+            return;
+        }
+
+
+        if (customer.getPhotoPath() != null
+                && !customer.getPhotoPath().isEmpty()) {
+
+            try {
+
+                Image image =
+                        new Image(
+                                customer.getPhotoPath()
+                        );
+
+                customerImageView.setImage(image);
+
+            } catch (Exception e) {
+
+                customerImageView.setImage(null);
+            }
+
+        } else {
+
+            customerImageView.setImage(null);
+        }
+    }
+
+
+    // =========================
+    // BROWSE IMAGE
     // =========================
 
     @FXML
     private void browseImage() {
-
-        // Get the selected customer
 
         Customer selectedCustomer =
                 customerTable
@@ -234,7 +242,9 @@ public class CustomerController implements Initializable {
                         .getSelectedItem();
 
 
-        // Make sure a customer is selected
+        // =========================
+        // CHECK SELECTION
+        // =========================
 
         if (selectedCustomer == null) {
 
@@ -247,32 +257,37 @@ public class CustomerController implements Initializable {
         }
 
 
-        // Create FileChooser
+        // =========================
+        // FILE CHOOSER
+        // =========================
 
         FileChooser fileChooser =
                 new FileChooser();
-
-
-        // Set FileChooser title
 
         fileChooser.setTitle(
                 "Select Customer Image"
         );
 
 
-        // Allow image files only
+        // =========================
+        // IMAGE FILTER
+        // =========================
 
-        fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter(
-                        "Image Files",
-                        "*.png",
-                        "*.jpg",
-                        "*.jpeg"
-                )
-        );
+        fileChooser
+                .getExtensionFilters()
+                .add(
+                        new FileChooser.ExtensionFilter(
+                                "Image Files",
+                                "*.png",
+                                "*.jpg",
+                                "*.jpeg"
+                        )
+                );
 
 
-        // Get current window
+        // =========================
+        // GET CURRENT WINDOW
+        // =========================
 
         Stage stage =
                 (Stage) customerImageView
@@ -280,44 +295,58 @@ public class CustomerController implements Initializable {
                         .getWindow();
 
 
-        // Open FileChooser
+        // =========================
+        // OPEN FILE CHOOSER
+        // =========================
 
         File file =
                 fileChooser.showOpenDialog(stage);
 
 
-        // Check whether an image was selected
+        // =========================
+        // SAVE IMAGE
+        // =========================
 
         if (file != null) {
 
-            // Save the image path
-            // inside the selected Customer
+            String photoPath =
+                    file.toURI().toString();
 
             selectedCustomer.setPhotoPath(
-                    file.toURI().toString()
+                    photoPath
             );
 
 
             // =========================
-            // SAVE CUSTOMER DATA
+            // SAVE PHOTO PATH TO SQLITE
             // =========================
 
-            // This makes the photo change permanent
-
-            CustomerStorage.saveCustomers(customerList);
-
-
-            // Create JavaFX Image
-
-            Image image =
-                    new Image(
-                            file.toURI().toString()
-                    );
+            customerDAO.updateCustomer(
+                    selectedCustomer
+            );
 
 
-            // Display image in ImageView
+            // =========================
+            // DISPLAY IMAGE
+            // =========================
 
-            customerImageView.setImage(image);
+            try {
+
+                Image image =
+                        new Image(photoPath);
+
+                customerImageView.setImage(image);
+
+            } catch (Exception e) {
+
+                customerImageView.setImage(null);
+            }
+
+
+            showMessage(
+                    "Success",
+                    "Customer image updated successfully!"
+            );
         }
     }
 
@@ -329,14 +358,25 @@ public class CustomerController implements Initializable {
     @FXML
     private void addCustomer() {
 
-        // Customer ID
+        // =========================
+        // CUSTOMER ID
+        // =========================
 
         TextInputDialog idDialog =
                 new TextInputDialog();
 
-        idDialog.setTitle("Add Customer");
-        idDialog.setHeaderText("Enter Customer ID");
-        idDialog.setContentText("Customer ID:");
+        idDialog.setTitle(
+                "Add Customer"
+        );
+
+        idDialog.setHeaderText(
+                "Enter Customer ID"
+        );
+
+        idDialog.setContentText(
+                "Customer ID:"
+        );
+
 
         Optional<String> idResult =
                 idDialog.showAndWait();
@@ -346,14 +386,25 @@ public class CustomerController implements Initializable {
         }
 
 
-        // Name
+        // =========================
+        // NAME
+        // =========================
 
         TextInputDialog nameDialog =
                 new TextInputDialog();
 
-        nameDialog.setTitle("Add Customer");
-        nameDialog.setHeaderText("Enter Customer Name");
-        nameDialog.setContentText("Name:");
+        nameDialog.setTitle(
+                "Add Customer"
+        );
+
+        nameDialog.setHeaderText(
+                "Enter Customer Name"
+        );
+
+        nameDialog.setContentText(
+                "Name:"
+        );
+
 
         Optional<String> nameResult =
                 nameDialog.showAndWait();
@@ -363,14 +414,25 @@ public class CustomerController implements Initializable {
         }
 
 
-        // Phone
+        // =========================
+        // PHONE
+        // =========================
 
         TextInputDialog phoneDialog =
                 new TextInputDialog();
 
-        phoneDialog.setTitle("Add Customer");
-        phoneDialog.setHeaderText("Enter Phone Number");
-        phoneDialog.setContentText("Phone:");
+        phoneDialog.setTitle(
+                "Add Customer"
+        );
+
+        phoneDialog.setHeaderText(
+                "Enter Phone Number"
+        );
+
+        phoneDialog.setContentText(
+                "Phone:"
+        );
+
 
         Optional<String> phoneResult =
                 phoneDialog.showAndWait();
@@ -380,14 +442,25 @@ public class CustomerController implements Initializable {
         }
 
 
-        // Email
+        // =========================
+        // EMAIL
+        // =========================
 
         TextInputDialog emailDialog =
                 new TextInputDialog();
 
-        emailDialog.setTitle("Add Customer");
-        emailDialog.setHeaderText("Enter Email");
-        emailDialog.setContentText("Email:");
+        emailDialog.setTitle(
+                "Add Customer"
+        );
+
+        emailDialog.setHeaderText(
+                "Enter Email"
+        );
+
+        emailDialog.setContentText(
+                "Email:"
+        );
+
 
         Optional<String> emailResult =
                 emailDialog.showAndWait();
@@ -397,14 +470,25 @@ public class CustomerController implements Initializable {
         }
 
 
-        // Address
+        // =========================
+        // ADDRESS
+        // =========================
 
         TextInputDialog addressDialog =
                 new TextInputDialog();
 
-        addressDialog.setTitle("Add Customer");
-        addressDialog.setHeaderText("Enter Address");
-        addressDialog.setContentText("Address:");
+        addressDialog.setTitle(
+                "Add Customer"
+        );
+
+        addressDialog.setHeaderText(
+                "Enter Address"
+        );
+
+        addressDialog.setContentText(
+                "Address:"
+        );
+
 
         Optional<String> addressResult =
                 addressDialog.showAndWait();
@@ -416,21 +500,76 @@ public class CustomerController implements Initializable {
 
         try {
 
+            // =========================
+            // READ VALUES
+            // =========================
+
             int customerId =
-                    Integer.parseInt(idResult.get());
+                    Integer.parseInt(
+                            idResult.get().trim()
+                    );
 
             String name =
-                    nameResult.get();
+                    nameResult.get().trim();
 
             String phone =
-                    phoneResult.get();
+                    phoneResult.get().trim();
 
             String email =
-                    emailResult.get();
+                    emailResult.get().trim();
 
             String address =
-                    addressResult.get();
+                    addressResult.get().trim();
 
+
+            // =========================
+            // VALIDATION
+            // =========================
+
+            if (name.isEmpty()) {
+
+                showMessage(
+                        "Error",
+                        "Customer name cannot be empty."
+                );
+
+                return;
+            }
+
+            if (customerId <= 0) {
+
+                showMessage(
+                        "Error",
+                        "Customer ID must be greater than 0."
+                );
+
+                return;
+            }
+
+
+            // =========================
+            // CHECK DUPLICATE ID
+            // =========================
+
+            Customer existingCustomer =
+                    customerDAO.getCustomerById(
+                            customerId
+                    );
+
+            if (existingCustomer != null) {
+
+                showMessage(
+                        "Error",
+                        "Customer ID already exists."
+                );
+
+                return;
+            }
+
+
+            // =========================
+            // CREATE CUSTOMER
+            // =========================
 
             Customer customer =
                     new Customer(
@@ -442,12 +581,41 @@ public class CustomerController implements Initializable {
                     );
 
 
-            customerList.add(customer);
+            // =========================
+            // SAVE TO SQLITE
+            // =========================
+
+            customerDAO.addCustomer(
+                    customer
+            );
 
 
-            // Save new customer permanently
+            // =========================
+            // RELOAD DATABASE DATA
+            // =========================
 
-            CustomerStorage.saveCustomers(customerList);
+            loadCustomersFromDatabase();
+
+
+            // =========================
+            // SELECT NEW CUSTOMER
+            // =========================
+
+            for (Customer c : customerList) {
+
+                if (c.getCustomerId()
+                        == customerId) {
+
+                    customerTable
+                            .getSelectionModel()
+                            .select(c);
+
+                    customerTable
+                            .scrollTo(c);
+
+                    break;
+                }
+            }
 
 
             showMessage(
@@ -461,6 +629,13 @@ public class CustomerController implements Initializable {
             showMessage(
                     "Error",
                     "Customer ID must be a valid number."
+            );
+
+        } catch (RuntimeException e) {
+
+            showMessage(
+                    "Database Error",
+                    e.getMessage()
             );
         }
     }
@@ -479,6 +654,10 @@ public class CustomerController implements Initializable {
                         .getSelectedItem();
 
 
+        // =========================
+        // CHECK SELECTION
+        // =========================
+
         if (selectedCustomer == null) {
 
             showMessage(
@@ -490,16 +669,27 @@ public class CustomerController implements Initializable {
         }
 
 
-        // New Name
+        // =========================
+        // NAME
+        // =========================
 
         TextInputDialog nameDialog =
                 new TextInputDialog(
                         selectedCustomer.getName()
                 );
 
-        nameDialog.setTitle("Update Customer");
-        nameDialog.setHeaderText("Update Customer Name");
-        nameDialog.setContentText("Name:");
+        nameDialog.setTitle(
+                "Update Customer"
+        );
+
+        nameDialog.setHeaderText(
+                "Update Customer Name"
+        );
+
+        nameDialog.setContentText(
+                "Name:"
+        );
+
 
         Optional<String> nameResult =
                 nameDialog.showAndWait();
@@ -509,16 +699,27 @@ public class CustomerController implements Initializable {
         }
 
 
-        // New Phone
+        // =========================
+        // PHONE
+        // =========================
 
         TextInputDialog phoneDialog =
                 new TextInputDialog(
                         selectedCustomer.getPhone()
                 );
 
-        phoneDialog.setTitle("Update Customer");
-        phoneDialog.setHeaderText("Update Phone Number");
-        phoneDialog.setContentText("Phone:");
+        phoneDialog.setTitle(
+                "Update Customer"
+        );
+
+        phoneDialog.setHeaderText(
+                "Update Phone Number"
+        );
+
+        phoneDialog.setContentText(
+                "Phone:"
+        );
+
 
         Optional<String> phoneResult =
                 phoneDialog.showAndWait();
@@ -528,16 +729,27 @@ public class CustomerController implements Initializable {
         }
 
 
-        // New Email
+        // =========================
+        // EMAIL
+        // =========================
 
         TextInputDialog emailDialog =
                 new TextInputDialog(
                         selectedCustomer.getEmail()
                 );
 
-        emailDialog.setTitle("Update Customer");
-        emailDialog.setHeaderText("Update Email");
-        emailDialog.setContentText("Email:");
+        emailDialog.setTitle(
+                "Update Customer"
+        );
+
+        emailDialog.setHeaderText(
+                "Update Email"
+        );
+
+        emailDialog.setContentText(
+                "Email:"
+        );
+
 
         Optional<String> emailResult =
                 emailDialog.showAndWait();
@@ -547,16 +759,27 @@ public class CustomerController implements Initializable {
         }
 
 
-        // New Address
+        // =========================
+        // ADDRESS
+        // =========================
 
         TextInputDialog addressDialog =
                 new TextInputDialog(
                         selectedCustomer.getAddress()
                 );
 
-        addressDialog.setTitle("Update Customer");
-        addressDialog.setHeaderText("Update Address");
-        addressDialog.setContentText("Address:");
+        addressDialog.setTitle(
+                "Update Customer"
+        );
+
+        addressDialog.setHeaderText(
+                "Update Address"
+        );
+
+        addressDialog.setContentText(
+                "Address:"
+        );
+
 
         Optional<String> addressResult =
                 addressDialog.showAndWait();
@@ -566,39 +789,108 @@ public class CustomerController implements Initializable {
         }
 
 
-        // Update the selected customer
+        // =========================
+        // READ VALUES
+        // =========================
+
+        String newName =
+                nameResult.get().trim();
+
+        String newPhone =
+                phoneResult.get().trim();
+
+        String newEmail =
+                emailResult.get().trim();
+
+        String newAddress =
+                addressResult.get().trim();
+
+
+        // =========================
+        // VALIDATION
+        // =========================
+
+        if (newName.isEmpty()) {
+
+            showMessage(
+                    "Error",
+                    "Customer name cannot be empty."
+            );
+
+            return;
+        }
+
+
+        // =========================
+        // UPDATE OBJECT
+        // =========================
 
         selectedCustomer.setName(
-                nameResult.get()
+                newName
         );
 
         selectedCustomer.setPhone(
-                phoneResult.get()
+                newPhone
         );
 
         selectedCustomer.setEmail(
-                emailResult.get()
+                newEmail
         );
 
         selectedCustomer.setAddress(
-                addressResult.get()
+                newAddress
         );
 
 
-        // Refresh table
+        try {
 
-        customerTable.refresh();
+            // =========================
+            // UPDATE SQLITE
+            // =========================
+
+            customerDAO.updateCustomer(
+                    selectedCustomer
+            );
 
 
-        // Save updated customer permanently
+            // =========================
+            // RELOAD DATA
+            // =========================
 
-        CustomerStorage.saveCustomers(customerList);
+            loadCustomersFromDatabase();
 
 
-        showMessage(
-                "Success",
-                "Customer updated successfully!"
-        );
+            // =========================
+            // RESELECT CUSTOMER
+            // =========================
+
+            for (Customer customer :
+                    customerList) {
+
+                if (customer.getCustomerId()
+                        == selectedCustomer.getCustomerId()) {
+
+                    customerTable
+                            .getSelectionModel()
+                            .select(customer);
+
+                    break;
+                }
+            }
+
+
+            showMessage(
+                    "Success",
+                    "Customer updated successfully!"
+            );
+
+        } catch (RuntimeException e) {
+
+            showMessage(
+                    "Database Error",
+                    e.getMessage()
+            );
+        }
     }
 
 
@@ -615,6 +907,10 @@ public class CustomerController implements Initializable {
                         .getSelectedItem();
 
 
+        // =========================
+        // CHECK SELECTION
+        // =========================
+
         if (selectedCustomer == null) {
 
             showMessage(
@@ -626,16 +922,23 @@ public class CustomerController implements Initializable {
         }
 
 
+        // =========================
+        // CONFIRMATION
+        // =========================
+
         Alert confirmation =
                 new Alert(
                         Alert.AlertType.CONFIRMATION
                 );
 
-        confirmation.setTitle("Delete Customer");
+        confirmation.setTitle(
+                "Delete Customer"
+        );
 
         confirmation.setHeaderText(
-                "Delete Customer " +
-                        selectedCustomer.getName() + "?"
+                "Delete Customer "
+                        + selectedCustomer.getName()
+                        + "?"
         );
 
         confirmation.setContentText(
@@ -647,52 +950,70 @@ public class CustomerController implements Initializable {
                 confirmation.showAndWait();
 
 
+        // =========================
+        // DELETE
+        // =========================
+
         if (result.isPresent()
                 && result.get() == ButtonType.OK) {
 
-            customerList.remove(
-                    selectedCustomer
-            );
+            try {
+
+                customerDAO.deleteCustomer(
+                        selectedCustomer.getCustomerId()
+                );
 
 
-            // Clear ImageView after deleting
-            // the selected customer
+                // =========================
+                // RELOAD DATABASE
+                // =========================
 
-            customerImageView.setImage(null);
-
-
-            // Save deletion permanently
-
-            CustomerStorage.saveCustomers(customerList);
+                loadCustomersFromDatabase();
 
 
-            showMessage(
-                    "Success",
-                    "Customer deleted successfully!"
-            );
+                // =========================
+                // CLEAR IMAGE
+                // =========================
+
+                customerImageView.setImage(null);
+
+
+                showMessage(
+                        "Success",
+                        "Customer deleted successfully!"
+                );
+
+            } catch (RuntimeException e) {
+
+                showMessage(
+                        "Database Error",
+                        e.getMessage()
+                );
+            }
         }
     }
 
 
     // =========================
-    // PART 14 - CLEAR SPECIAL REQUEST
+    // CLEAR SPECIAL REQUEST
     // =========================
 
     @FXML
     private void clearSpecialRequest() {
+
         if (specialRequestTextArea != null) {
+
             specialRequestTextArea.clear();
         }
     }
 
 
+    // =========================
     // BOOK SELECTED CUSTOMER
     // =========================
 
     @FXML
     private void bookSelectedCustomer() {
-
-        // Get the customer selected in the TableView
 
         Customer selectedCustomer =
                 customerTable
@@ -700,7 +1021,9 @@ public class CustomerController implements Initializable {
                         .getSelectedItem();
 
 
-        // Check whether a customer was selected
+        // =========================
+        // CHECK SELECTION
+        // =========================
 
         if (selectedCustomer == null) {
 
@@ -715,42 +1038,57 @@ public class CustomerController implements Initializable {
 
         try {
 
-            // Load BookingView.fxml
+            // =========================
+            // LOAD BOOKING VIEW
+            // =========================
 
-            FXMLLoader loader = new FXMLLoader(
-                    CustomerController.class.getResource(
-                            "/view/BookingView.fxml"
-                    )
-            );
+            FXMLLoader loader =
+                    new FXMLLoader(
+                            CustomerController.class
+                                    .getResource(
+                                            "/view/BookingView.fxml"
+                                    )
+                    );
 
 
             Scene scene =
-                    new Scene(loader.load());
+                    new Scene(
+                            loader.load()
+                    );
 
 
-            // Get the BookingController
+            // =========================
+            // GET BOOKING CONTROLLER
+            // =========================
 
             BookingController controller =
                     loader.getController();
 
 
-            // Pass the selected Customer
-            // from CustomerController
-            // to BookingController
+            // =========================
+            // PASS CUSTOMER
+            // =========================
 
             controller.setSelectedCustomer(
                     selectedCustomer
             );
 
 
-            // Open Booking Management
+            // =========================
+            // OPEN BOOKING WINDOW
+            // =========================
 
-            Stage stage = new Stage();
+            Stage stage =
+                    new Stage();
 
-            stage.setTitle("Booking Management");
+            stage.setTitle(
+                    "Booking Management"
+            );
+
             stage.setScene(scene);
 
             stage.setWidth(800);
+
             stage.setHeight(550);
 
             stage.show();
@@ -799,7 +1137,9 @@ public class CustomerController implements Initializable {
                 );
 
         alert.setTitle(title);
+
         alert.setHeaderText(null);
+
         alert.setContentText(message);
 
         alert.showAndWait();

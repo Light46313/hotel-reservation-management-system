@@ -1,5 +1,8 @@
 package hotel.controller;
 
+import hotel.database.BookingDAO;
+import hotel.database.CustomerDAO;
+import hotel.database.RoomDAO;
 import hotel.model.Booking;
 import hotel.model.BookingData;
 import hotel.model.Customer;
@@ -7,7 +10,6 @@ import hotel.model.Room;
 import hotel.service.BookingService;
 
 import javafx.application.Platform;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -35,23 +37,32 @@ import javafx.stage.Stage;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import java.util.List;
 import java.util.Optional;
-
 import java.util.concurrent.Future;
 
+
+// =========================================================
+// BOOKING CONTROLLER
+// =========================================================
 
 public class BookingController {
 
     // =========================================================
-    // BOOKING SERVICE
+    // SERVICES AND DATABASE
     // =========================================================
 
-    /*
-     * BookingService handles the booking process
-     * using multithreading.
-     */
     private final BookingService bookingService =
             new BookingService();
+
+    private final BookingDAO bookingDAO =
+            new BookingDAO();
+
+    private final CustomerDAO customerDAO =
+            new CustomerDAO();
+
+    private final RoomDAO roomDAO =
+            new RoomDAO();
 
 
     // =========================================================
@@ -134,13 +145,21 @@ public class BookingController {
 
 
     // =========================================================
+    // CUSTOMER DISPLAY
+    // =========================================================
+
+    @FXML
+    private Label selectedCustomerLabel;
+
+
+    // =========================================================
     // LISTS
     // =========================================================
 
-    private ObservableList<Customer> customerList =
+    private final ObservableList<Customer> customerList =
             FXCollections.observableArrayList();
 
-    private ObservableList<Room> roomList =
+    private final ObservableList<Room> roomList =
             FXCollections.observableArrayList();
 
 
@@ -149,9 +168,6 @@ public class BookingController {
     // =========================================================
 
     private Customer selectedCustomer;
-
-    @FXML
-    private Label selectedCustomerLabel;
 
 
     // =========================================================
@@ -196,17 +212,24 @@ public class BookingController {
 
 
         // ---------------------------------------------------------
-        // LOAD SAMPLE DATA
+        // LOAD BOOKINGS FROM SQLITE
         // ---------------------------------------------------------
 
-        loadSampleDataIfEmpty();
+        loadBookingsFromDatabase();
 
 
         // ---------------------------------------------------------
-        // LOAD CUSTOMERS
+        // LOAD CUSTOMERS DIRECTLY FROM SQLITE
         // ---------------------------------------------------------
 
         loadCustomersIntoComboBox();
+
+
+        // ---------------------------------------------------------
+        // LOAD ROOMS DIRECTLY FROM SQLITE
+        // ---------------------------------------------------------
+
+        loadRoomsIntoComboBox();
 
 
         // ---------------------------------------------------------
@@ -224,26 +247,7 @@ public class BookingController {
                                 selectedCustomer =
                                         newCustomer;
 
-                                if (selectedCustomerLabel != null) {
-
-                                    if (newCustomer != null) {
-
-                                        selectedCustomerLabel.setText(
-                                                "Selected Customer: ID = "
-                                                        + newCustomer.getCustomerId()
-                                                        + " | Name = "
-                                                        + newCustomer.getName()
-                                                        + " | Phone = "
-                                                        + newCustomer.getPhone()
-                                        );
-
-                                    } else {
-
-                                        selectedCustomerLabel.setText(
-                                                "No customer selected"
-                                        );
-                                    }
-                                }
+                                updateSelectedCustomerLabel();
 
                                 updateBookingProgress();
                             }
@@ -252,10 +256,21 @@ public class BookingController {
 
 
         // ---------------------------------------------------------
-        // LOAD ROOMS
+        // ROOM COMBOBOX LISTENER
         // ---------------------------------------------------------
 
-        loadRoomsIntoComboBox();
+        if (roomComboBox != null) {
+
+            roomComboBox.valueProperty()
+                    .addListener(
+                            (observable,
+                             oldRoom,
+                             newRoom) -> {
+
+                                updateBookingProgress();
+                            }
+                    );
+        }
 
 
         // ---------------------------------------------------------
@@ -388,49 +403,302 @@ public class BookingController {
 
 
     // =========================================================
-    // WARNING MESSAGE
+    // LOAD BOOKINGS FROM DATABASE
     // =========================================================
 
-    private void showWarning(
-            String title,
-            String message) {
+    private void loadBookingsFromDatabase() {
 
-        Alert alert =
-                new Alert(
-                        Alert.AlertType.WARNING
-                );
+        try {
 
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
+            List<Booking> databaseBookings =
+                    bookingDAO.getAllBookings();
 
-        alert.showAndWait();
+            BookingData.bookingList.clear();
+
+            BookingData.bookingList.addAll(
+                    databaseBookings
+            );
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            showError(
+                    "Database Error",
+                    "Could not load bookings from database."
+            );
+        }
     }
 
 
     // =========================================================
-    // ERROR MESSAGE
+    // LOAD CUSTOMERS DIRECTLY FROM SQLITE
     // =========================================================
 
-    private void showError(
-            String title,
-            String message) {
+    private void loadCustomersIntoComboBox() {
 
-        Alert alert =
-                new Alert(
-                        Alert.AlertType.ERROR
-                );
+        customerList.clear();
 
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
+        try {
 
-        alert.showAndWait();
+            List<Customer> customers =
+                    customerDAO.getAllCustomers();
+
+            customerList.addAll(customers);
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            showError(
+                    "Database Error",
+                    "Could not load customers from database."
+            );
+        }
+
+
+        if (customerComboBox != null) {
+
+            customerComboBox.setItems(
+                    customerList
+            );
+
+
+            // -----------------------------------------------------
+            // SHOW CUSTOMER NAME IN COMBOBOX
+            // -----------------------------------------------------
+
+            customerComboBox.setConverter(
+                    new javafx.util.StringConverter<Customer>() {
+
+                        @Override
+                        public String toString(
+                                Customer customer) {
+
+                            if (customer == null) {
+                                return "";
+                            }
+
+                            return customer.getCustomerId()
+                                    + " - "
+                                    + customer.getName();
+                        }
+
+
+                        @Override
+                        public Customer fromString(
+                                String string) {
+
+                            return null;
+                        }
+                    }
+            );
+        }
     }
 
 
     // =========================================================
-    // PART 11 - PROGRESS BAR
+    // LOAD ROOMS DIRECTLY FROM SQLITE
+    // =========================================================
+
+    private void loadRoomsIntoComboBox() {
+
+        roomList.clear();
+
+        try {
+
+            List<Room> rooms =
+                    roomDAO.getAllRooms();
+
+            roomList.addAll(rooms);
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            showError(
+                    "Database Error",
+                    "Could not load rooms from database."
+            );
+        }
+
+
+        updateRoomComboBox();
+
+
+        // ---------------------------------------------------------
+        // ROOM CONVERTER
+        // ---------------------------------------------------------
+
+        if (roomComboBox != null) {
+
+            roomComboBox.setConverter(
+                    new javafx.util.StringConverter<Room>() {
+
+                        @Override
+                        public String toString(
+                                Room room) {
+
+                            if (room == null) {
+                                return "";
+                            }
+
+                            return "Room "
+                                    + room.getRoomNumber()
+                                    + " - "
+                                    + room.getRoomType()
+                                    + " - "
+                                    + room.getPrice();
+                        }
+
+
+                        @Override
+                        public Room fromString(
+                                String string) {
+
+                            return null;
+                        }
+                    }
+            );
+        }
+    }
+
+
+    // =========================================================
+    // UPDATE ROOM COMBOBOX
+    // =========================================================
+
+    private void updateRoomComboBox() {
+
+        if (roomComboBox == null) {
+            return;
+        }
+
+        double maximumPrice = 5000;
+
+        if (roomPriceSlider != null) {
+
+            maximumPrice =
+                    roomPriceSlider.getValue();
+        }
+
+        ObservableList<Room> filteredRooms =
+                FXCollections.observableArrayList();
+
+        for (Room room : roomList) {
+
+            if (room.getPrice() <= maximumPrice
+                    && room.isAvailable()) {
+
+                filteredRooms.add(room);
+            }
+        }
+
+        roomComboBox.setItems(
+                filteredRooms
+        );
+    }
+
+
+    // =========================================================
+    // UPDATE SELECTED CUSTOMER LABEL
+    // =========================================================
+
+    private void updateSelectedCustomerLabel() {
+
+        if (selectedCustomerLabel == null) {
+            return;
+        }
+
+        if (selectedCustomer == null) {
+
+            selectedCustomerLabel.setText(
+                    "No customer selected"
+            );
+
+            return;
+        }
+
+        selectedCustomerLabel.setText(
+                "Selected Customer: ID = "
+                        + selectedCustomer.getCustomerId()
+                        + " | Name = "
+                        + selectedCustomer.getName()
+                        + " | Phone = "
+                        + selectedCustomer.getPhone()
+        );
+    }
+
+
+    // =========================================================
+    // PASS CUSTOMER DATA
+    // =========================================================
+
+    public void setSelectedCustomer(
+            Customer customer) {
+
+        this.selectedCustomer = customer;
+
+        if (customerComboBox != null) {
+
+            // -----------------------------------------------------
+            // Make sure customer exists in the ComboBox list
+            // -----------------------------------------------------
+
+            Customer databaseCustomer =
+                    customerDAO.getCustomerById(
+                            customer.getCustomerId()
+                    );
+
+            if (databaseCustomer != null) {
+
+                selectedCustomer =
+                        databaseCustomer;
+
+                boolean exists = false;
+
+                for (Customer c : customerList) {
+
+                    if (c.getCustomerId()
+                            == databaseCustomer.getCustomerId()) {
+
+                        exists = true;
+                        break;
+                    }
+                }
+
+                if (!exists) {
+
+                    customerList.add(
+                            databaseCustomer
+                    );
+                }
+
+                customerComboBox.setValue(
+                        databaseCustomer
+                );
+
+            } else {
+
+                if (!customerList.contains(customer)) {
+
+                    customerList.add(customer);
+                }
+
+                customerComboBox.setValue(
+                        customer
+                );
+            }
+        }
+
+        updateSelectedCustomerLabel();
+
+        updateBookingProgress();
+    }
+
+
+    // =========================================================
+    // PROGRESS BAR
     // =========================================================
 
     private void setupBookingProgress() {
@@ -439,11 +707,9 @@ public class BookingController {
             return;
         }
 
-        // Start at 0%
         bookingProgressBar.setProgress(0);
 
 
-        // Customer selected
         if (customerComboBox != null) {
 
             customerComboBox.valueProperty()
@@ -458,7 +724,6 @@ public class BookingController {
         }
 
 
-        // Room selected
         if (roomComboBox != null) {
 
             roomComboBox.valueProperty()
@@ -473,7 +738,6 @@ public class BookingController {
         }
 
 
-        // Check-in selected
         if (checkInDatePicker != null) {
 
             checkInDatePicker.valueProperty()
@@ -488,7 +752,6 @@ public class BookingController {
         }
 
 
-        // Check-out selected
         if (checkOutDatePicker != null) {
 
             checkOutDatePicker.valueProperty()
@@ -528,7 +791,8 @@ public class BookingController {
 
         if (selectedCustomer != null) {
 
-            customer = selectedCustomer;
+            customer =
+                    selectedCustomer;
 
         } else if (customerComboBox != null) {
 
@@ -575,12 +839,14 @@ public class BookingController {
         }
 
 
-        bookingProgressBar.setProgress(progress);
+        bookingProgressBar.setProgress(
+                progress
+        );
     }
 
 
     // =========================================================
-    // PART 11 - ROOM PRICE SLIDER
+    // ROOM PRICE SLIDER
     // =========================================================
 
     private void setupRoomPriceSlider() {
@@ -590,19 +856,13 @@ public class BookingController {
         }
 
 
-        // Minimum price
         roomPriceSlider.setMin(1000);
 
-
-        // Maximum price
         roomPriceSlider.setMax(5000);
 
-
-        // Starting value
         roomPriceSlider.setValue(5000);
 
 
-        // Display starting price
         if (roomPriceLabel != null) {
 
             roomPriceLabel.setText(
@@ -611,7 +871,6 @@ public class BookingController {
         }
 
 
-        // Slider listener
         roomPriceSlider.valueProperty()
                 .addListener(
                         (observable,
@@ -622,7 +881,6 @@ public class BookingController {
                                     newValue.doubleValue();
 
 
-                            // Update label
                             if (roomPriceLabel != null) {
 
                                 roomPriceLabel.setText(
@@ -632,8 +890,9 @@ public class BookingController {
                             }
 
 
-                            // Filter rooms
-                            filterRoomsByPrice(price);
+                            filterRoomsByPrice(
+                                    price
+                            );
                         }
                 );
     }
@@ -650,20 +909,18 @@ public class BookingController {
             return;
         }
 
-
         ObservableList<Room> filteredRooms =
                 FXCollections.observableArrayList();
-
 
         for (Room room : roomList) {
 
             if (room.getPrice()
-                    <= maximumPrice) {
+                    <= maximumPrice
+                    && room.isAvailable()) {
 
                 filteredRooms.add(room);
             }
         }
-
 
         roomComboBox.setItems(
                 filteredRooms
@@ -672,7 +929,7 @@ public class BookingController {
 
 
     // =========================================================
-    // PART 11 - GUEST SPINNER
+    // GUEST SPINNER
     // =========================================================
 
     private void setupGuestSpinner() {
@@ -680,13 +937,6 @@ public class BookingController {
         if (guestSpinner == null) {
             return;
         }
-
-
-        /*
-         * Minimum = 1
-         * Maximum = 10
-         * Initial value = 1
-         */
 
         guestSpinner.setValueFactory(
                 new SpinnerValueFactory
@@ -699,290 +949,6 @@ public class BookingController {
     }
 
 
-    // =========================================================
-    // LOAD CUSTOMERS
-    // =========================================================
-
-    private void loadCustomersIntoComboBox() {
-
-        customerList.clear();
-
-
-        /*
-         * Take customers from existing bookings.
-         */
-
-        for (Booking booking :
-                BookingData.bookingList) {
-
-            Customer customer =
-                    booking.getCustomer();
-
-            if (customer != null
-                    && !customerList.contains(customer)) {
-
-                customerList.add(customer);
-            }
-        }
-
-
-        if (customerComboBox != null) {
-
-            customerComboBox.setItems(
-                    customerList
-            );
-
-
-            // Show customer name
-            customerComboBox.setConverter(
-                    new javafx.util.StringConverter<Customer>() {
-
-                        @Override
-                        public String toString(
-                                Customer customer) {
-
-                            if (customer == null) {
-                                return "";
-                            }
-
-                            return customer.getName();
-                        }
-
-
-                        @Override
-                        public Customer fromString(
-                                String string) {
-
-                            return null;
-                        }
-                    }
-            );
-        }
-    }
-
-
-    // =========================================================
-    // LOAD ROOMS
-    // =========================================================
-
-    private void loadRoomsIntoComboBox() {
-
-        roomList.clear();
-
-
-        /*
-         * Take rooms from existing bookings.
-         */
-
-        for (Booking booking :
-                BookingData.bookingList) {
-
-            Room room =
-                    booking.getRoom();
-
-            if (room != null
-                    && !roomList.contains(room)) {
-
-                roomList.add(room);
-            }
-        }
-
-
-        if (roomComboBox != null) {
-
-            roomComboBox.setItems(
-                    roomList
-            );
-
-
-            // Show room number and type
-            roomComboBox.setConverter(
-                    new javafx.util.StringConverter<Room>() {
-
-                        @Override
-                        public String toString(
-                                Room room) {
-
-                            if (room == null) {
-                                return "";
-                            }
-
-                            return "Room "
-                                    + room.getRoomNumber()
-                                    + " - "
-                                    + room.getRoomType();
-                        }
-
-
-                        @Override
-                        public Room fromString(
-                                String string) {
-
-                            return null;
-                        }
-                    }
-            );
-        }
-    }
-
-
-    // =========================================================
-    // PASS CUSTOMER DATA
-    // =========================================================
-
-    /*
-     * This method receives a Customer object
-     * from CustomerController.
-     */
-
-    public void setSelectedCustomer(
-            Customer customer) {
-
-        this.selectedCustomer = customer;
-
-
-        // Add customer to ComboBox
-        if (customerComboBox != null) {
-
-            if (!customerList.contains(customer)) {
-
-                customerList.add(customer);
-            }
-
-            customerComboBox.setValue(customer);
-        }
-
-
-        // Show selected customer
-        if (selectedCustomerLabel != null) {
-
-            selectedCustomerLabel.setText(
-                    "Selected Customer: ID = "
-                            + customer.getCustomerId()
-                            + " | Name = "
-                            + customer.getName()
-                            + " | Phone = "
-                            + customer.getPhone()
-            );
-        }
-
-
-        updateBookingProgress();
-    }
-
-
-    // =========================================================
-    // SAMPLE DATA
-    // =========================================================
-
-    private void loadSampleDataIfEmpty() {
-
-        if (!BookingData.bookingList.isEmpty()) {
-            return;
-        }
-
-
-        // ---------------------------------------------------------
-        // CUSTOMER 1
-        // ---------------------------------------------------------
-
-        Customer customer1 =
-                new Customer(
-                        1,
-                        "Argho",
-                        "01711111111",
-                        "argho@gmail.com",
-                        "Dhaka"
-                );
-
-
-        // ---------------------------------------------------------
-        // CUSTOMER 2
-        // ---------------------------------------------------------
-
-        Customer customer2 =
-                new Customer(
-                        2,
-                        "Rahim",
-                        "01822222222",
-                        "rahim@gmail.com",
-                        "Chittagong"
-                );
-
-
-        // ---------------------------------------------------------
-        // ROOM 1
-        // ---------------------------------------------------------
-
-        Room room1 =
-                new Room(
-                        101,
-                        "Single",
-                        1500,
-                        true
-                );
-
-
-        // ---------------------------------------------------------
-        // ROOM 2
-        // ---------------------------------------------------------
-
-        Room room2 =
-                new Room(
-                        102,
-                        "Double",
-                        2500,
-                        true
-                );
-
-
-        // ---------------------------------------------------------
-        // SAMPLE BOOKING 1
-        // ---------------------------------------------------------
-
-        BookingData.bookingList.add(
-                new Booking(
-                        1,
-                        customer1,
-                        room1,
-                        LocalDate.of(2026, 9, 20),
-                        LocalDate.of(2026, 9, 23)
-                )
-        );
-
-
-        // ---------------------------------------------------------
-        // SAMPLE BOOKING 2
-        // ---------------------------------------------------------
-
-        BookingData.bookingList.add(
-                new Booking(
-                        2,
-                        customer2,
-                        room2,
-                        LocalDate.of(2026, 9, 25),
-                        LocalDate.of(2026, 9, 28)
-                )
-        );
-    }
-
-
-// =========================================================
-// END OF FIRST HALF
-// =========================================================
-
-/*
- * The next part will start here with:
- *
- * @FXML
- * private void addBooking()
- *
- * In that method the multithreading code will use
- * finalBookingType,
- * finalExtraServices,
- * finalNumberOfGuests
- * so the lambda errors are removed.
- */
     // =========================================================
     // ADD BOOKING
     // =========================================================
@@ -1009,6 +975,7 @@ public class BookingController {
                 "Booking ID:"
         );
 
+
         Optional<String> bookingIdResult =
                 bookingIdDialog.showAndWait();
 
@@ -1025,8 +992,27 @@ public class BookingController {
 
             int bookingId =
                     Integer.parseInt(
-                            bookingIdResult.get()
+                            bookingIdResult
+                                    .get()
+                                    .trim()
                     );
+
+
+            // ---------------------------------------------------------
+            // CHECK DUPLICATE BOOKING ID
+            // ---------------------------------------------------------
+
+            if (bookingDAO.getBookingById(
+                    bookingId
+            ) != null) {
+
+                showWarning(
+                        "Warning",
+                        "Booking ID already exists."
+                );
+
+                return;
+            }
 
 
             // ---------------------------------------------------------
@@ -1037,7 +1023,8 @@ public class BookingController {
 
             if (selectedCustomer != null) {
 
-                customer = selectedCustomer;
+                customer =
+                        selectedCustomer;
 
             } else {
 
@@ -1057,18 +1044,78 @@ public class BookingController {
 
 
             // ---------------------------------------------------------
+            // GET LATEST CUSTOMER FROM DATABASE
+            // ---------------------------------------------------------
+
+            Customer databaseCustomer =
+                    customerDAO.getCustomerById(
+                            customer.getCustomerId()
+                    );
+
+            if (databaseCustomer == null) {
+
+                showError(
+                        "Database Error",
+                        "Selected customer does not exist in database."
+                );
+
+                return;
+            }
+
+            customer =
+                    databaseCustomer;
+
+
+            // ---------------------------------------------------------
             // ROOM
             // ---------------------------------------------------------
 
-            Room room =
+            Room selectedRoom =
                     roomComboBox.getValue();
 
-            if (room == null) {
+            if (selectedRoom == null) {
 
                 showWarning(
                         "Warning",
                         "Please select a room."
                 );
+
+                return;
+            }
+
+
+            // ---------------------------------------------------------
+            // GET LATEST ROOM FROM DATABASE
+            // ---------------------------------------------------------
+
+            Room room =
+                    roomDAO.getRoomByNumber(
+                            selectedRoom.getRoomNumber()
+                    );
+
+            if (room == null) {
+
+                showError(
+                        "Database Error",
+                        "Selected room does not exist in database."
+                );
+
+                return;
+            }
+
+
+            // ---------------------------------------------------------
+            // CHECK ROOM AVAILABILITY
+            // ---------------------------------------------------------
+
+            if (!room.isAvailable()) {
+
+                showWarning(
+                        "Room Unavailable",
+                        "The selected room is already booked."
+                );
+
+                loadRoomsIntoComboBox();
 
                 return;
             }
@@ -1187,15 +1234,9 @@ public class BookingController {
             }
 
 
-            // =========================================================
-            // IMPORTANT FIX FOR LAMBDA
-            // =========================================================
-            /*
-             * Variables used inside Platform.runLater()
-             * must be final or effectively final.
-             *
-             * Therefore we create final copies here.
-             */
+            // ---------------------------------------------------------
+            // FINAL VALUES FOR LAMBDA
+            // ---------------------------------------------------------
 
             final String finalBookingType =
                     bookingType;
@@ -1211,15 +1252,6 @@ public class BookingController {
             // MULTITHREADING
             // =========================================================
 
-            /*
-             * BookingService processes the booking
-             * using ExecutorService.
-             *
-             * Therefore the booking task is performed
-             * on a worker thread instead of directly
-             * on the JavaFX Application Thread.
-             */
-
             Future<Booking> future =
                     bookingService.createBookingAsync(
                             bookingId,
@@ -1230,144 +1262,164 @@ public class BookingController {
                     );
 
 
-            // ---------------------------------------------------------
-            // WAIT FOR RESULT IN SEPARATE THREAD
-            // ---------------------------------------------------------
+            // =========================================================
+            // WAIT FOR BOOKING RESULT
+            // =========================================================
 
             Thread resultThread =
                     new Thread(() -> {
 
                         try {
 
-                            /*
-                             * Wait for BookingService to finish.
-                             */
                             Booking booking =
                                     future.get();
 
 
-                            /*
-                             * JavaFX controls must be modified
-                             * on the JavaFX Application Thread.
-                             */
+                            // -------------------------------------------------
+                            // SAVE BOOKING TO SQLITE
+                            // -------------------------------------------------
+
+                            bookingDAO.insertBooking(
+                                    booking
+                            );
+
+
+                            // -------------------------------------------------
+                            // UPDATE ROOM AVAILABILITY IN SQLITE
+                            // -------------------------------------------------
+
+                            roomDAO.updateAvailability(
+                                    room.getRoomNumber(),
+                                    false
+                            );
+
+
+                            // -------------------------------------------------
+                            // UPDATE JAVAFX UI
+                            // -------------------------------------------------
 
                             Platform.runLater(() -> {
 
-                                if (booking != null) {
+                                BookingData.bookingList.add(
+                                        booking
+                                );
 
-                                    // -------------------------------------------------
-                                    // ADD BOOKING TO SHARED LIST
-                                    // -------------------------------------------------
 
-                                    BookingData.bookingList.add(
-                                            booking
+                                // -------------------------------------------------
+                                // UPDATE LOCAL ROOM
+                                // -------------------------------------------------
+
+                                room.setAvailable(false);
+
+
+                                // -------------------------------------------------
+                                // REFRESH ROOM LIST
+                                // -------------------------------------------------
+
+                                loadRoomsIntoComboBox();
+
+
+                                // -------------------------------------------------
+                                // SUCCESS MESSAGE
+                                // -------------------------------------------------
+
+                                showMessage(
+                                        "Success",
+                                        "Booking added successfully!\n\n"
+                                                + "Booking Type: "
+                                                + finalBookingType
+                                                + "\n"
+                                                + "Extra Services: "
+                                                + finalExtraServices
+                                                + "\n"
+                                                + "Number of Guests: "
+                                                + finalNumberOfGuests
+                                );
+
+
+                                // -------------------------------------------------
+                                // CLEAR DATE FIELDS
+                                // -------------------------------------------------
+
+                                checkInDatePicker.setValue(
+                                        null
+                                );
+
+                                checkOutDatePicker.setValue(
+                                        null
+                                );
+
+
+                                // -------------------------------------------------
+                                // RESET BOOKING TYPE
+                                // -------------------------------------------------
+
+                                if (regularRadioButton != null) {
+
+                                    regularRadioButton.setSelected(
+                                            true
                                     );
-
-
-                                    // -------------------------------------------------
-                                    // SUCCESS MESSAGE
-                                    // -------------------------------------------------
-
-                                    showMessage(
-                                            "Success",
-                                            "Booking added successfully!\n\n"
-                                                    + "Booking Type: "
-                                                    + finalBookingType
-                                                    + "\n"
-                                                    + "Extra Services: "
-                                                    + finalExtraServices
-                                                    + "\n"
-                                                    + "Number of Guests: "
-                                                    + finalNumberOfGuests
-                                    );
-
-
-                                    // -------------------------------------------------
-                                    // CLEAR DATE FIELDS
-                                    // -------------------------------------------------
-
-                                    checkInDatePicker.setValue(
-                                            null
-                                    );
-
-                                    checkOutDatePicker.setValue(
-                                            null
-                                    );
-
-
-                                    // -------------------------------------------------
-                                    // RESET BOOKING TYPE
-                                    // -------------------------------------------------
-
-                                    if (regularRadioButton != null) {
-
-                                        regularRadioButton.setSelected(
-                                                true
-                                        );
-                                    }
-
-
-                                    // -------------------------------------------------
-                                    // RESET BREAKFAST
-                                    // -------------------------------------------------
-
-                                    if (breakfastCheckBox != null) {
-
-                                        breakfastCheckBox.setSelected(
-                                                false
-                                        );
-                                    }
-
-
-                                    // -------------------------------------------------
-                                    // RESET AIRPORT PICKUP
-                                    // -------------------------------------------------
-
-                                    if (airportPickupCheckBox != null) {
-
-                                        airportPickupCheckBox.setSelected(
-                                                false
-                                        );
-                                    }
-
-
-                                    // -------------------------------------------------
-                                    // RESET GUEST SPINNER
-                                    // -------------------------------------------------
-
-                                    if (guestSpinner != null
-                                            && guestSpinner
-                                            .getValueFactory() != null) {
-
-                                        guestSpinner
-                                                .getValueFactory()
-                                                .setValue(1);
-                                    }
-
-
-                                    // -------------------------------------------------
-                                    // UPDATE PROGRESS
-                                    // -------------------------------------------------
-
-                                    updateBookingProgress();
                                 }
-                            });
 
+
+                                // -------------------------------------------------
+                                // RESET BREAKFAST
+                                // -------------------------------------------------
+
+                                if (breakfastCheckBox != null) {
+
+                                    breakfastCheckBox.setSelected(
+                                            false
+                                    );
+                                }
+
+
+                                // -------------------------------------------------
+                                // RESET AIRPORT PICKUP
+                                // -------------------------------------------------
+
+                                if (airportPickupCheckBox != null) {
+
+                                    airportPickupCheckBox.setSelected(
+                                            false
+                                    );
+                                }
+
+
+                                // -------------------------------------------------
+                                // RESET GUEST SPINNER
+                                // -------------------------------------------------
+
+                                if (guestSpinner != null
+                                        && guestSpinner
+                                        .getValueFactory()
+                                        != null) {
+
+                                    guestSpinner
+                                            .getValueFactory()
+                                            .setValue(1);
+                                }
+
+
+                                // -------------------------------------------------
+                                // UPDATE PROGRESS
+                                // -------------------------------------------------
+
+                                updateBookingProgress();
+
+                            });
 
                         } catch (Exception e) {
 
                             e.printStackTrace();
 
-                            /*
-                             * Show error on JavaFX Application Thread.
-                             */
-
                             Platform.runLater(() -> {
 
                                 showError(
                                         "Booking Error",
-                                        "Could not process the booking."
+                                        "Could not save booking to database."
                                 );
+
                             });
                         }
 
@@ -1375,7 +1427,7 @@ public class BookingController {
 
 
             // ---------------------------------------------------------
-            // MAKE THREAD A DAEMON THREAD
+            // MAKE THREAD DAEMON
             // ---------------------------------------------------------
 
             resultThread.setDaemon(true);
@@ -1458,6 +1510,7 @@ public class BookingController {
                 "YYYY-MM-DD:"
         );
 
+
         Optional<String> checkInResult =
                 checkInDialog.showAndWait();
 
@@ -1489,6 +1542,7 @@ public class BookingController {
                 "YYYY-MM-DD:"
         );
 
+
         Optional<String> checkOutResult =
                 checkOutDialog.showAndWait();
 
@@ -1505,12 +1559,16 @@ public class BookingController {
 
             LocalDate newCheckIn =
                     LocalDate.parse(
-                            checkInResult.get()
+                            checkInResult
+                                    .get()
+                                    .trim()
                     );
 
             LocalDate newCheckOut =
                     LocalDate.parse(
-                            checkOutResult.get()
+                            checkOutResult
+                                    .get()
+                                    .trim()
                     );
 
 
@@ -1530,7 +1588,7 @@ public class BookingController {
 
 
             // ---------------------------------------------------------
-            // UPDATE BOOKING
+            // UPDATE BOOKING OBJECT
             // ---------------------------------------------------------
 
             selectedBooking.setCheckIn(
@@ -1543,15 +1601,20 @@ public class BookingController {
 
 
             // ---------------------------------------------------------
+            // UPDATE DATABASE
+            // ---------------------------------------------------------
+
+            bookingDAO.updateBooking(
+                    selectedBooking
+            );
+
+
+            // ---------------------------------------------------------
             // REFRESH TABLE
             // ---------------------------------------------------------
 
             bookingTable.refresh();
 
-
-            // ---------------------------------------------------------
-            // SUCCESS MESSAGE
-            // ---------------------------------------------------------
 
             showMessage(
                     "Success",
@@ -1560,6 +1623,8 @@ public class BookingController {
 
 
         } catch (Exception e) {
+
+            e.printStackTrace();
 
             showError(
                     "Error",
@@ -1632,15 +1697,74 @@ public class BookingController {
         if (result.isPresent()
                 && result.get() == ButtonType.OK) {
 
-            BookingData.bookingList.remove(
+            try {
+
+                // -----------------------------------------------------
+                // DELETE FROM DATABASE
+                // -----------------------------------------------------
+
+                bookingDAO.deleteBooking(
+                        selectedBooking.getBookingId()
+                );
+
+
+                // -----------------------------------------------------
+                // MAKE ROOM AVAILABLE IN SQLITE
+                // -----------------------------------------------------
+
+                if (selectedBooking.getRoom() != null) {
+
+                    int roomNumber =
+                            selectedBooking
+                                    .getRoom()
+                                    .getRoomNumber();
+
+                    roomDAO.updateAvailability(
+                            roomNumber,
+                            true
+                    );
+
                     selectedBooking
-            );
+                            .getRoom()
+                            .setAvailable(true);
+                }
 
 
-            showMessage(
-                    "Success",
-                    "Booking deleted successfully!"
-            );
+                // -----------------------------------------------------
+                // REMOVE FROM JAVAFX LIST
+                // -----------------------------------------------------
+
+                BookingData.bookingList.remove(
+                        selectedBooking
+                );
+
+
+                // -----------------------------------------------------
+                // RELOAD ROOMS
+                // -----------------------------------------------------
+
+                loadRoomsIntoComboBox();
+
+
+                // -----------------------------------------------------
+                // SUCCESS MESSAGE
+                // -----------------------------------------------------
+
+                showMessage(
+                        "Success",
+                        "Booking deleted successfully!"
+                );
+
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
+
+                showError(
+                        "Database Error",
+                        "Could not delete booking."
+                );
+            }
         }
     }
 
@@ -1662,7 +1786,53 @@ public class BookingController {
 
 
     // =========================================================
-    // COMMON INFORMATION MESSAGE
+    // WARNING MESSAGE
+    // =========================================================
+
+    private void showWarning(
+            String title,
+            String message) {
+
+        Alert alert =
+                new Alert(
+                        Alert.AlertType.WARNING
+                );
+
+        alert.setTitle(title);
+
+        alert.setHeaderText(null);
+
+        alert.setContentText(message);
+
+        alert.showAndWait();
+    }
+
+
+    // =========================================================
+    // ERROR MESSAGE
+    // =========================================================
+
+    private void showError(
+            String title,
+            String message) {
+
+        Alert alert =
+                new Alert(
+                        Alert.AlertType.ERROR
+                );
+
+        alert.setTitle(title);
+
+        alert.setHeaderText(null);
+
+        alert.setContentText(message);
+
+        alert.showAndWait();
+    }
+
+
+    // =========================================================
+    // INFORMATION MESSAGE
     // =========================================================
 
     private void showMessage(
@@ -1687,11 +1857,6 @@ public class BookingController {
     // =========================================================
     // SHUTDOWN BOOKING SERVICE
     // =========================================================
-
-    /*
-     * Stops the ExecutorService when the controller
-     * is no longer needed.
-     */
 
     public void shutdownBookingService() {
 

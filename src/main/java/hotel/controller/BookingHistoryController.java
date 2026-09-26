@@ -1,18 +1,49 @@
 package hotel.controller;
 
+import hotel.database.BookingDAO;
 import hotel.model.Booking;
-import hotel.model.BookingData;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import javafx.fxml.FXML;
+
+import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+
 import javafx.stage.Stage;
+
+import java.time.LocalDate;
+import java.util.List;
+
+
+// =========================================================
+// BOOKING HISTORY CONTROLLER
+// =========================================================
 
 public class BookingHistoryController {
 
+    // =========================================================
+    // DATABASE
+    // =========================================================
+
+    private final BookingDAO bookingDAO =
+            new BookingDAO();
+
+
+    // =========================================================
+    // TABLE
+    // =========================================================
+
     @FXML
     private TableView<Booking> bookingHistoryTable;
+
+
+    // =========================================================
+    // TABLE COLUMNS
+    // =========================================================
 
     @FXML
     private TableColumn<Booking, Integer> bookingIdColumn;
@@ -29,40 +60,142 @@ public class BookingHistoryController {
     @FXML
     private TableColumn<Booking, String> checkOutColumn;
 
+
+    // =========================================================
+    // BOOKING LIST
+    // =========================================================
+
+    private final ObservableList<Booking> bookingHistoryList =
+            FXCollections.observableArrayList();
+
+
+    // =========================================================
+    // INITIALIZE
+    // =========================================================
+
     @FXML
     public void initialize() {
 
-        // Connect Booking ID column
+        // ---------------------------------------------------------
+        // BOOKING ID COLUMN
+        // ---------------------------------------------------------
+
         bookingIdColumn.setCellValueFactory(
                 new PropertyValueFactory<>("bookingId")
         );
 
-        // Connect Customer column
+
+        // ---------------------------------------------------------
+        // CUSTOMER COLUMN
+        // ---------------------------------------------------------
+
         customerColumn.setCellValueFactory(
                 new PropertyValueFactory<>("customer")
         );
 
-        // Connect Room column
+
+        // ---------------------------------------------------------
+        // ROOM COLUMN
+        // ---------------------------------------------------------
+
         roomColumn.setCellValueFactory(
                 new PropertyValueFactory<>("room")
         );
 
-        // Connect Check-In column
+
+        // ---------------------------------------------------------
+        // CHECK-IN COLUMN
+        // ---------------------------------------------------------
+
         checkInColumn.setCellValueFactory(
                 new PropertyValueFactory<>("checkIn")
         );
 
-        // Connect Check-Out column
+
+        // ---------------------------------------------------------
+        // CHECK-OUT COLUMN
+        // ---------------------------------------------------------
+
         checkOutColumn.setCellValueFactory(
                 new PropertyValueFactory<>("checkOut")
         );
 
-        // Use the SAME shared booking list
-        // used by BookingController
+
+        // ---------------------------------------------------------
+        // SET TABLE ITEMS
+        // ---------------------------------------------------------
+
         bookingHistoryTable.setItems(
-                BookingData.bookingList
+                bookingHistoryList
         );
+
+
+        // ---------------------------------------------------------
+        // LOAD BOOKINGS FROM SQLITE
+        // ---------------------------------------------------------
+
+        loadBookingHistory();
     }
+
+
+    // =========================================================
+    // LOAD BOOKING HISTORY FROM DATABASE
+    // =========================================================
+
+    private void loadBookingHistory() {
+
+        try {
+
+            // ---------------------------------------------------------
+            // GET BOOKINGS FROM SQLITE
+            // ---------------------------------------------------------
+
+            List<Booking> bookings =
+                    bookingDAO.getAllBookings();
+
+
+            // ---------------------------------------------------------
+            // CLEAR OLD DATA
+            // ---------------------------------------------------------
+
+            bookingHistoryList.clear();
+
+
+            // ---------------------------------------------------------
+            // ADD DATABASE BOOKINGS
+            // ---------------------------------------------------------
+
+            bookingHistoryList.addAll(
+                    bookings
+            );
+
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            showError(
+                    "Database Error",
+                    "Could not load booking history from database."
+            );
+        }
+    }
+
+
+    // =========================================================
+    // REFRESH BOOKING HISTORY
+    // =========================================================
+
+    @FXML
+    private void refreshBookingHistory() {
+
+        loadBookingHistory();
+    }
+
+
+    // =========================================================
+    // BACK TO MAIN
+    // =========================================================
 
     @FXML
     private void backToMain() {
@@ -73,5 +206,28 @@ public class BookingHistoryController {
                         .getWindow();
 
         stage.close();
+    }
+
+
+    // =========================================================
+    // ERROR MESSAGE
+    // =========================================================
+
+    private void showError(
+            String title,
+            String message) {
+
+        Alert alert =
+                new Alert(
+                        Alert.AlertType.ERROR
+                );
+
+        alert.setTitle(title);
+
+        alert.setHeaderText(null);
+
+        alert.setContentText(message);
+
+        alert.showAndWait();
     }
 }

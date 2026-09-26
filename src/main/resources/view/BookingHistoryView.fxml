@@ -20,7 +20,6 @@
         minWidth="700.0"
         minHeight="500.0">
 
-
     <!-- ==================== TOP AREA ==================== -->
 
     <top>
@@ -71,7 +70,8 @@
                 <TableView
                         fx:id="bookingHistoryTable"
                         prefHeight="450.0"
-                        prefWidth="850.0">
+                        prefWidth="850.0"
+                        BorderPane.alignment="CENTER">
 
                     <columns>
 
